@@ -1,0 +1,93 @@
+<header class="app-header">
+  <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
+  <nav>
+    <a routerLink="/login">Prijava</a>
+    <a routerLink="/register">Registracija</a>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ stats.totalFacilities }}</div>
+      <div class="stat-label">Aktivnih objekata</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ sports.length }}</div>
+      <div class="stat-label">Vrsta sportova</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ cities.length }}</div>
+      <div class="stat-label">Gradova</div>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:12px">🏆 TOP 3 najbolje ocenjena objekta</h3>
+  <div class="grid-3">
+    <div *ngFor="let f of topFacilities" class="facility-card">
+      <div class="card-body">
+        <div class="card-title">{{ f.name }}</div>
+        <div class="card-subtitle">📍 {{ f.city }}</div>
+        <div class="card-stats"><span>👍 {{ f.likes }}</span><span>👎 {{ f.dislikes }}</span></div>
+        <div class="card-actions">
+          <a [routerLink]="['/facility', f._id]" class="btn btn-outline btn-sm">Detalji →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px;margin-bottom:12px">🎉 Aktuelne promocije</h3>
+  <div class="grid-2">
+    <div *ngFor="let p of promotions" class="card">
+      <strong>{{ p.name }}</strong>
+      <p style="color:var(--text-light);font-size:0.9rem;margin:4px 0">
+        {{ p.facility?.name || '' }} — {{ p.sport || 'Svi sportovi' }}
+      </p>
+      <p style="font-size:0.85rem">📅 {{ p.startDate | date:'dd.MM.' }} – {{ p.endDate | date:'dd.MM.yyyy.' }}</p>
+      <p style="color:var(--success);font-weight:700">
+        {{ p.discountType === 'percentage' ? p.discountValue + '% popusta' : p.discountValue + ' RSD popusta' }}
+      </p>
+    </div>
+    <div *ngIf="promotions.length === 0" class="card">
+      <p style="color:var(--text-light)">Trenutno nema aktivnih promocija.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:24px;margin-bottom:12px">🔍 Pretraga objekata</h3>
+  <div class="card">
+    <div class="grid-2">
+      <div class="form-group"><label>Naziv objekta</label><input type="text" [(ngModel)]="searchName" placeholder="npr. Sportski Centar"></div>
+      <div class="form-group"><label>Grad (Ctrl+klik za više)</label><select multiple [(ngModel)]="searchCities"><option *ngFor="let c of cities" [value]="c">{{ c }}</option></select></div>
+      <div class="form-group"><label>Vrsta sporta</label><select [(ngModel)]="searchSport"><option value="">Svi sportovi</option><option *ngFor="let s of sports" [value]="s.name">{{ s.name }}</option></select></div>
+      <div class="form-group"><label>Tip terena</label><select [(ngModel)]="searchCourtType"><option value="">Svi tipovi</option><option value="outdoor">Otvoreni</option><option value="indoor">Zatvoreni</option><option value="arena">Dvorana</option></select></div>
+    </div>
+    <button class="btn btn-primary" (click)="search()" [disabled]="searching">{{ searching ? 'Pretraga...' : '🔍 Pretraži' }}</button>
+  </div>
+
+  <div *ngIf="searchResults !== null" style="margin-top:20px">
+    <h4>{{ searchResults.length }} rezultata</h4>
+    <div class="table-wrapper" *ngIf="searchResults.length > 0">
+      <table>
+        <thead>
+          <tr>
+            <th (click)="sortBy('name')">Naziv {{ sortIcon('name') }}</th>
+            <th (click)="sortBy('city')">Grad {{ sortIcon('city') }}</th>
+            <th (click)="sortBy('sport')">Sportovi {{ sortIcon('sport') }}</th>
+            <th>Akcija</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of searchResults">
+            <td>{{ f.name }}</td><td>{{ f.city }}</td><td>{{ getSportsList(f) }}</td>
+            <td><a [routerLink]="['/facility', f._id]" class="btn btn-outline btn-sm">Detalji</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="searchResults.length === 0" class="card"><p style="color:var(--text-light)">Nema rezultata za zadate kriterijume.</p></div>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <p>&copy; 2025 SportSphere Hub. Studentski projekat - ETF Beograd.</p>
+</footer>

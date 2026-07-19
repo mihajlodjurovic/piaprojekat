@@ -1,0 +1,85 @@
+<header class="app-header">
+  <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
+  <nav>
+    <a routerLink="/">Početna</a>
+    <a routerLink="/login">Prijava</a>
+  </nav>
+</header>
+
+<div class="container" *ngIf="facility">
+  <h2>{{ facility.name }}</h2>
+  <p style="color:var(--text-light)">📍 {{ facility.city }}, {{ facility.address }}</p>
+  <p style="margin:8px 0">{{ facility.description }}</p>
+  <div style="display:flex;gap:12px;font-weight:600;margin:12px 0">
+    <span>👍 {{ facility.likes }}</span>
+    <span>👎 {{ facility.dislikes }}</span>
+  </div>
+
+  <h3 style="margin-top:20px">Dostupni tereni i hale</h3>
+  <div class="grid-2">
+    <div *ngFor="let c of courts" class="card">
+      <strong>{{ c.name }}</strong>
+      <span style="float:right;color:var(--primary);font-weight:700">{{ c.pricePerHour }} RSD/h</span>
+      <p style="font-size:0.85rem;">🏷️ {{ c.sport }} | {{ c.type === 'outdoor' ? 'Otvoreni' : c.type === 'indoor' ? 'Zatvoreni' : 'Dvorana' }}</p>
+      <p style="font-size:0.85rem;color:var(--text-light)">{{ c.equipmentDescription }}</p>
+      <button class="btn btn-outline btn-sm" (click)="selectCourt(c)" style="margin-top:8px">📅 Prikaži raspored</button>
+    </div>
+  </div>
+
+  <div *ngIf="selectedCourt" style="margin-top:24px">
+    <h3>Rezervacija termina – {{ selectedCourt.name }}</h3>
+
+    <div class="calendar-nav">
+      <button class="btn btn-outline btn-sm" (click)="prevWeek()">‹ Prethodna nedelja</button>
+      <span class="week-range">📅 {{ formatDate(weekStart) }} – {{ formatDate(weekEnd) }}</span>
+      <button class="btn btn-outline btn-sm" (click)="nextWeek()">Sledeća nedelja ›</button>
+    </div>
+
+    <div class="calendar-grid">
+      <table>
+        <thead>
+          <tr>
+            <th>Vreme</th>
+            <th *ngFor="let day of weekDays">{{ day.label }}<br>{{ day.dateStr }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let hour of hours">
+            <td class="time-label">{{ hour }}:00</td>
+            <td *ngFor="let day of weekDays"
+                [ngClass]="getCellClass(day.date, hour)"
+                (click)="selectSlot(day.date, hour)">&nbsp;</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="calendar-legend">
+      <span><span class="legend-box" style="background:#dcfce7;border:1px solid #86efac"></span> Slobodno</span>
+      <span><span class="legend-box" style="background:#fecaca;border:1px solid #fca5a5"></span> Zauzeto</span>
+      <span><span class="legend-box" style="background:#bfdbfe;border:2px solid #2563eb"></span> Vaš izbor</span>
+    </div>
+    <p style="font-size:0.85rem;color:var(--text-light);margin-bottom:12px">Kliknite na slobodan termin da biste ga izabrali.</p>
+
+    <div *ngIf="selectedSlot" class="card" style="text-align:center">
+      <p><strong>Izabrani termin:</strong> {{ selectedSlot.date | date:'dd.MM.yyyy.' }} {{ selectedSlot.hour }}:00 – {{ selectedSlot.hour + 1 }}:00</p>
+      <p style="color:var(--primary);font-weight:600">Cena: {{ selectedCourt.pricePerHour }} RSD</p>
+      <button class="btn btn-success" (click)="makeReservation()" [disabled]="reserving">
+        {{ reserving ? 'Rezervisanje...' : '✅ Rezerviši' }}
+      </button>
+    </div>
+
+    <div *ngIf="reservationMsg" class="alert" [ngClass]="reservationOk ? 'alert-success' : 'alert-error'">{{ reservationMsg }}</div>
+  </div>
+
+  <h3 style="margin-top:24px">💬 Poslednji komentari</h3>
+  <div *ngFor="let r of reviews" class="card">
+    <strong>{{ r.user?.firstName }} {{ r.user?.lastName }}</strong>
+    <span style="margin-left:8px">{{ r.isLike ? '👍' : '👎' }}</span>
+    <span style="color:var(--text-light);margin-left:8px;font-size:0.8rem">{{ r.createdAt | date:'dd.MM.yyyy.' }}</span>
+    <p *ngIf="r.comment" style="margin-top:4px">{{ r.comment }}</p>
+  </div>
+  <div *ngIf="reviews.length === 0" class="card"><p style="color:var(--text-light)">Još uvek nema komentara.</p></div>
+</div>
+
+<footer class="app-footer"><p>&copy; 2025 SportSphere Hub.</p></footer>

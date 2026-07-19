@@ -1,0 +1,247 @@
+<header class="app-header">
+  <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
+  <nav>
+    <span class="user-info" *ngIf="user">👤 {{ user.firstName }} {{ user.lastName }}</span>
+    <button (click)="activeTab = 'profile'">Profil</button>
+    <button (click)="activeTab = 'reservations'">Rezervacije</button>
+    <button (click)="activeTab = 'teammates'">Saigrači</button>
+    <button (click)="activeTab = 'training'">Treninzi</button>
+    <button (click)="activeTab = 'shop'">Prodavnica</button>
+    <button (click)="activeTab = 'reviews'">Ocene</button>
+    <button (click)="activeTab = 'stats'">Statistika</button>
+    <button (click)="logout()">Izloguj se</button>
+  </nav>
+</header>
+
+<div class="container">
+  <!-- PROFIL -->
+  <div *ngIf="activeTab === 'profile'">
+    <h2>👤 Moj profil</h2>
+    <div *ngIf="msg" class="alert alert-success">{{ msg }}</div>
+    <div *ngIf="err" class="alert alert-error">{{ err }}</div>
+    <div class="card">
+      <div class="grid-2">
+        <div class="form-group"><label>Korisničko ime</label><input [value]="user?.username" disabled></div>
+        <div class="form-group"><label>Email</label><input [(ngModel)]="profileForm.email" disabled></div>
+        <div class="form-group"><label>Ime</label><input [(ngModel)]="profileForm.firstName"></div>
+        <div class="form-group"><label>Prezime</label><input [(ngModel)]="profileForm.lastName"></div>
+        <div class="form-group"><label>Telefon</label><input [(ngModel)]="profileForm.contactPhone"></div>
+        <div class="form-group">
+          <label>Omiljeni sportovi (max 5)</label>
+          <select multiple [(ngModel)]="profileForm.favoriteSports">
+            <option *ngFor="let s of allSports" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Profilna slika</label>
+        <div style="display:flex;align-items:center;gap:12px">
+          <input type="file" accept="image/*" (change)="onFileSelected($event)">
+          <button type="button" class="btn btn-outline btn-sm" (click)="generateAvatar()">🎲 Generiši avatar</button>
+        </div>
+        <img *ngIf="avatarPreview" [src]="avatarPreview" style="margin-top:8px;width:80px;height:80px;border-radius:50%">
+      </div>
+      <button class="btn btn-primary" (click)="updateProfile()" [disabled]="saving">{{ saving ? 'Čuvanje...' : '💾 Sačuvaj izmene' }}</button>
+    </div>
+
+    <h3 style="margin-top:20px">📋 Moje rezervacije</h3>
+    <div class="table-wrapper">
+      <table>
+        <thead><tr>
+          <th (click)="sortResBy('facilityName')">Objekat {{ sortResIcon('facilityName') }}</th>
+          <th (click)="sortResBy('city')">Grad {{ sortResIcon('city') }}</th>
+          <th (click)="sortResBy('courtName')">Teren {{ sortResIcon('courtName') }}</th>
+          <th (click)="sortResBy('sport')">Sport {{ sortResIcon('sport') }}</th>
+          <th (click)="sortResBy('date')">Datum {{ sortResIcon('date') }}</th>
+          <th (click)="sortResBy('time')">Termin {{ sortResIcon('time') }}</th>
+          <th (click)="sortResBy('status')">Status {{ sortResIcon('status') }}</th>
+          <th>Akcija</th>
+        </tr></thead>
+        <tbody>
+          <tr *ngFor="let r of sortedReservations">
+            <td>{{ r.facility?.name }}</td><td>{{ r.facility?.city }}</td><td>{{ r.courtName }}</td>
+            <td>{{ r.sport }}</td><td>{{ r.date | date:'dd.MM.yyyy.' }}</td>
+            <td>{{ r.startTime }} – {{ r.endTime }}</td>
+            <td>{{ r.status === 'active' ? (r.attendanceStatus === 'confirmed' ? '✅ Potvrđeno' : '⏳ Aktivno') : r.status === 'cancelled' ? '❌ Otkazano' : '✔️ Završeno' }}</td>
+            <td>
+              <button *ngIf="r.canCancel" class="btn btn-danger btn-sm" (click)="cancelReservation(r._id)">Otkaži</button>
+              <span *ngIf="!r.canCancel && r.status === 'active'" style="color:var(--text-light);font-size:0.8rem"><12h</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REZERVACIJE -->
+  <div *ngIf="activeTab === 'reservations'">
+    <h2>📅 Pretraga i rezervacija</h2>
+    <div class="card">
+      <div class="grid-2">
+        <div class="form-group"><label>Naziv objekta</label><input [(ngModel)]="rName"></div>
+        <div class="form-group"><label>Grad</label><input [(ngModel)]="rCity"></div>
+        <div class="form-group"><label>Sport</label><input [(ngModel)]="rSport"></div>
+        <div class="form-group"><label>Tip</label><select [(ngModel)]="rType"><option value="">Svi</option><option value="outdoor">Otvoreni</option><option value="indoor">Zatvoreni</option></select></div>
+      </div>
+      <button class="btn btn-primary" (click)="searchFacilities()">🔍 Pretraži</button>
+    </div>
+    <div *ngIf="searchResults" style="margin-top:12px">
+      <div *ngFor="let f of searchResults" class="card">
+        <strong>{{ f.name }}</strong> — {{ f.city }}
+        <button class="btn btn-outline btn-sm" style="margin-left:8px" (click)="viewFacility(f._id)">Detalji</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAIGRAČI -->
+  <div *ngIf="activeTab === 'teammates'">
+    <h2>🤝 Pronađi saigrače</h2>
+    <div *ngIf="tMsg" class="alert alert-success">{{ tMsg }}</div>
+    <div *ngIf="tErr" class="alert alert-error">{{ tErr }}</div>
+    <div class="card">
+      <h4>Objavi oglas</h4>
+      <div class="grid-2">
+        <div class="form-group"><label>Sport</label><select [(ngModel)]="tpSport"><option>Tenis</option><option>Fudbal</option><option>Košarka</option><option>Odbojka</option><option>Stoni tenis</option><option>Badminton</option></select></div>
+        <div class="form-group"><label>Grad</label><input [(ngModel)]="tpCity"></div>
+        <div class="form-group"><label>Datum</label><input type="date" [(ngModel)]="tpDate"></div>
+        <div class="form-group"><label>Početak</label><input type="time" [(ngModel)]="tpStart"></div>
+        <div class="form-group"><label>Kraj</label><input type="time" [(ngModel)]="tpEnd"></div>
+        <div class="form-group"><label>Nedostaje igrača</label><input type="number" [(ngModel)]="tpMissing" min="1"></div>
+      </div>
+      <div class="form-group"><label>Opis</label><textarea [(ngModel)]="tpDesc" rows="2"></textarea></div>
+      <button class="btn btn-primary" (click)="createTeammatePost()">📢 Objavi</button>
+    </div>
+
+    <h4>Aktivni oglasi</h4>
+    <div *ngFor="let p of teammatePosts" class="card">
+      <strong style="color:var(--primary)">{{ p.author?.firstName }} {{ p.author?.lastName }}</strong>
+      <span *ngIf="p.amAuthor" style="color:var(--success);margin-left:8px">(Moj oglas)</span>
+      <p>{{ p.sport }} — {{ p.city }}, {{ p.date | date:'dd.MM.' }} {{ p.startTime }}–{{ p.endTime }}</p>
+      <p>Nedostaje: {{ p.missingPlayers }} igrača | {{ p.description }}</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button *ngIf="!p.amAuthor && p.myRequestStatus === null" class="btn btn-primary btn-sm" (click)="joinTeammate(p._id)">Pridruži se</button>
+        <span *ngIf="p.myRequestStatus === 'pending'" style="color:var(--warning)">Zahtev na čekanju</span>
+        <span *ngIf="p.myRequestStatus === 'approved'" style="color:var(--success)">✅ Odobren</span>
+        <button *ngIf="p.amAuthor && p.isActive" class="btn btn-danger btn-sm" (click)="closeTeammate(p._id)">Zatvori oglas</button>
+      </div>
+      <div *ngIf="p.amAuthor && p.joinRequests?.length > 0" style="margin-top:8px">
+        <p style="font-weight:600;font-size:0.85rem">Zahtevi za pridruživanje:</p>
+        <div *ngFor="let jr of p.joinRequests" style="display:flex;gap:8px;align-items:center;margin:4px 0;flex-wrap:wrap">
+          <span style="font-size:0.85rem">{{ getUserLabel(jr.user) }}</span>
+          <span *ngIf="jr.status === 'pending'" style="display:flex;gap:4px">
+            <button class="btn btn-success btn-sm" (click)="handleJoin(p._id, jr.user, 'approve')">✓</button>
+            <button class="btn btn-danger btn-sm" (click)="handleJoin(p._id, jr.user, 'reject')">✕</button>
+          </span>
+          <span *ngIf="jr.status === 'approved'" style="color:var(--success);font-size:0.8rem">Odobren</span>
+          <span *ngIf="jr.status === 'rejected'" style="color:var(--danger);font-size:0.8rem">Odbijen</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRENINZI -->
+  <div *ngIf="activeTab === 'training'">
+    <h2>🏋️ Individualni treninzi</h2>
+    <div *ngIf="trnMsg" class="alert alert-success">{{ trnMsg }}</div>
+    <div *ngIf="trnErr" class="alert alert-error">{{ trnErr }}</div>
+    <h4>Dostupni treneri</h4>
+    <div class="grid-2">
+      <div *ngFor="let t of trainers" class="card">
+        <strong>{{ t.firstName }} {{ t.lastName }}</strong>
+        <p>{{ t.specialization?.join(', ') }} | ⭐ {{ t.averageRating }}</p>
+        <p style="color:var(--primary);font-weight:600">{{ t.pricePerHour }} RSD/h</p>
+        <p style="font-size:0.85rem;color:var(--text-light)">{{ t.facility?.name }}</p>
+        <button class="btn btn-outline btn-sm" (click)="openTrainingForm(t)">Zakaži</button>
+      </div>
+    </div>
+    <div *ngIf="showTrainingForm" class="card" style="margin-top:12px">
+      <h4>Zakaži trening sa {{ selectedTrainer?.firstName }} {{ selectedTrainer?.lastName }}</h4>
+      <div class="grid-2">
+        <div class="form-group"><label>Sport</label><input [(ngModel)]="trnSport"></div>
+        <div class="form-group"><label>Datum</label><input type="date" [(ngModel)]="trnDate"></div>
+        <div class="form-group"><label>Početak</label><input type="time" [(ngModel)]="trnStart"></div>
+        <div class="form-group"><label>Kraj</label><input type="time" [(ngModel)]="trnEnd"></div>
+      </div>
+      <button class="btn btn-success" (click)="scheduleTraining()">✅ Zakaži</button>
+      <button class="btn btn-outline btn-sm" style="margin-left:8px" (click)="showTrainingForm = false">Otkaži</button>
+    </div>
+    <h4 style="margin-top:20px">Moji treninzi</h4>
+    <div *ngFor="let t of trainings" class="card">
+      <strong>{{ t.trainer?.firstName }} {{ t.trainer?.lastName }}</strong> — {{ t.sport }}
+      <p>{{ t.facility?.name }} | {{ t.date | date:'dd.MM.' }} {{ t.startTime }}–{{ t.endTime }}</p>
+      <p style="color:var(--text-light)">Status: {{ t.status }} | {{ t.price }} RSD</p>
+    </div>
+  </div>
+
+  <!-- PRODAVNICA -->
+  <div *ngIf="activeTab === 'shop'">
+    <h2>🛒 Prodavnica opreme</h2>
+    <div *ngIf="cartMsg" class="alert alert-success">{{ cartMsg }}</div>
+    <div *ngIf="cartErr" class="alert alert-error">{{ cartErr }}</div>
+    <div class="grid-3">
+      <div *ngFor="let eq of equipment" class="shop-item">
+        <strong>{{ eq.name }}</strong><span style="font-size:0.85rem;color:var(--text-light)">{{ eq.sport }}</span>
+        <p>{{ eq.description }}</p>
+        <div class="price">{{ eq.price }} RSD</div>
+        <div class="stock">Zaliha: {{ eq.stock }}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="number" [(ngModel)]="cartQuantities[eq._id]" [min]="1" [max]="eq.stock" style="width:60px" placeholder="Kol.">
+          <button class="btn btn-primary btn-sm" (click)="addToCart(eq)" [disabled]="!cartQuantities[eq._id]">Dodaj</button>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="cart.length > 0" class="card" style="margin-top:16px">
+      <h4>🛒 Korpa</h4>
+      <div *ngFor="let item of cart" style="display:flex;justify-content:space-between;padding:4px 0">
+        <span>{{ item.name }} x{{ item.quantity }}</span><span>{{ item.price * item.quantity }} RSD</span>
+      </div>
+      <div class="cart-total" style="text-align:right;margin-top:8px">Ukupno: {{ cartTotal }} RSD</div>
+      <button class="btn btn-success" (click)="checkout()" [disabled]="cart.length === 0">🛍️ Naruči</button>
+    </div>
+    <h4 style="margin-top:20px">Moje porudžbine</h4>
+    <div *ngFor="let o of orders" class="card">
+      <strong>Porudžbina #{{ o._id?.slice(-6) }}</strong>
+      <span style="margin-left:8px" [ngStyle]="{'color': o.status === 'cancelled' ? 'var(--danger)' : 'var(--success)'}">{{ o.status }}</span>
+      <p>{{ o.totalPrice }} RSD | {{ o.createdAt | date:'dd.MM.yyyy.' }}</p>
+      <button *ngIf="o.status !== 'cancelled' && o.status !== 'picked_up'" class="btn btn-danger btn-sm" (click)="cancelOrder(o._id)">Otkaži</button>
+    </div>
+  </div>
+
+  <!-- OCENE -->
+  <div *ngIf="activeTab === 'reviews'">
+    <h2>⭐ Oceni objekte</h2>
+    <div *ngIf="revMsg" class="alert alert-success">{{ revMsg }}</div>
+    <div *ngIf="revErr" class="alert alert-error">{{ revErr }}</div>
+    <div class="card">
+      <div class="grid-2">
+        <div class="form-group"><label>Objekat</label><input [(ngModel)]="revFacilityId" placeholder="Unesite ID objekta"></div>
+        <div class="form-group"><label>Ocena</label><select [(ngModel)]="revIsLike"><option [ngValue]="true">👍 Sviđa mi se</option><option [ngValue]="false">👎 Ne sviđa mi se</option></select></div>
+      </div>
+      <div class="form-group"><label>Komentar (opciono)</label><textarea [(ngModel)]="revComment" rows="2" maxlength="500"></textarea></div>
+      <button class="btn btn-primary" (click)="addReview()">Pošalji ocenu</button>
+    </div>
+  </div>
+
+  <!-- STATISTIKA -->
+  <div *ngIf="activeTab === 'stats'">
+    <h2>📊 Moja statistika</h2>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-value">{{ athleteStats.totalReservations || 0 }}</div><div class="stat-label">Ukupno rezervacija</div></div>
+      <div class="stat-card"><div class="stat-value">{{ athleteStats.totalSpending || 0 }}</div><div class="stat-label">RSD potrošeno</div></div>
+    </div>
+    <div class="card" *ngIf="statBySport.length > 0">
+      <h4>Rezervacije po sportu</h4>
+      <div *ngFor="let s of statBySport" style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+        <span>{{ s._id }}</span><strong>{{ s.count }}</strong>
+      </div>
+    </div>
+    <div class="card" *ngIf="statMonthly.length > 0" style="margin-top:12px">
+      <h4>Mesečna aktivnost</h4>
+      <div *ngFor="let m of statMonthly" style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
+        <span>{{ m._id }}</span><strong>{{ m.count }}</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="app-footer"><p>&copy; 2025 SportSphere Hub.</p></footer>

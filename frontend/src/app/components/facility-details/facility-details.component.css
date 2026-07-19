@@ -1,0 +1,13 @@
+.calendar-nav { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; gap:8px; flex-wrap:wrap; }
+.week-range { font-weight:600; font-size:0.95rem; }
+.calendar-grid { overflow-x:auto; }
+.calendar-grid table { width:100%; border-collapse:collapse; font-size:0.85rem; min-width:700px; }
+.calendar-grid th { background:var(--primary); color:#fff; padding:8px 4px; text-align:center; }
+.calendar-grid td { border:1px solid #e2e8f0; padding:6px 4px; text-align:center; height:36px; }
+.calendar-grid .time-label { background:#f1f5f9; font-weight:600; width:60px; }
+.cell-free { background:#dcfce7; cursor:pointer; transition:background .15s; }
+.cell-free:hover { background:#bbf7d0; }
+.cell-taken { background:#fecaca; cursor:not-allowed; }
+.cell-selected { background:#bfdbfe; border:2px solid #2563eb; }
+.calendar-legend { display:flex; gap:16px; margin-top:12px; margin-bottom:8px; flex-wrap:wrap; }
+.legend-box { display:inline-block; width:18px; height:18px; border-radius:3px; margin-right:4px; vertical-align:middle; }

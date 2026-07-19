@@ -1,0 +1,40 @@
+<header class="app-header">
+  <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
+  <nav>
+    <a routerLink="/">Početna</a>
+    <a routerLink="/register">Registracija</a>
+  </nav>
+</header>
+
+<div class="container-sm">
+  <div class="card">
+    <h2 style="text-align:center;margin-bottom:20px">🔐 Prijava na sistem</h2>
+
+    <div *ngIf="errorMsg" class="alert alert-error">{{ errorMsg }}</div>
+    <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
+
+    <div class="form-group">
+      <label>Korisničko ime</label>
+      <input type="text" [(ngModel)]="username" placeholder="Unesite korisničko ime">
+    </div>
+    <div class="form-group">
+      <label>Lozinka</label>
+      <input type="password" [(ngModel)]="password" placeholder="Unesite lozinku">
+    </div>
+
+    <button class="btn btn-primary btn-block" (click)="login()" [disabled]="loading">
+      {{ loading ? 'Prijava...' : 'Prijavi se' }}
+    </button>
+
+    <p style="text-align:center;margin-top:12px">
+      <a routerLink="/reset-password" style="color:var(--primary)">Zaboravljena lozinka?</a>
+    </p>
+    <p style="text-align:center;margin-top:8px">
+      Nemate nalog? <a routerLink="/register" style="color:var(--primary)">Registrujte se</a>
+    </p>
+  </div>
+</div>
+
+<footer class="app-footer">
+  <p>&copy; 2025 SportSphere Hub. Studentski projekat - ETF Beograd.</p>
+</footer>
