@@ -148,11 +148,17 @@ export class FacilityDetailsComponent implements OnInit {
       startTime: `${hour}:00`,
       endTime: `${String(this.selectedSlot.hour + 1).padStart(2, '0')}:00`
     }).subscribe({
-      next: () => {
-        this.reserving = false; this.reservationOk = true;
-        this.reservationMsg = '✅ Termin uspešno rezervisan!';
-        this.selectedSlot = null;
-        this.loadSchedule(this.selectedCourt._id);
+      next: (res: any) => {
+        this.reserving = false;
+        if (res.message === 'OK') {
+          this.reservationOk = true;
+          this.reservationMsg = '✅ Termin uspešno rezervisan!';
+          this.selectedSlot = null;
+          this.loadSchedule(this.selectedCourt._id);
+        } else {
+          this.reservationOk = false;
+          this.reservationMsg = res.message || 'Greška pri rezervaciji';
+        }
       },
       error: (err) => {
         this.reserving = false; this.reservationOk = false;

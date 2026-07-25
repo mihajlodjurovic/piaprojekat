@@ -214,6 +214,15 @@ export class Controller {
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 7);
 
+      console.log('=== schedule DEBUG ===');
+      console.log('facilityId:', facilityId, 'courtId:', courtId);
+      console.log('startDate:', startDate.toISOString(), 'endDate:', endDate.toISOString());
+
+      // Broj svih rezervacija u bazi (bez filtera) - dijagnostika
+      const totalAll = await ReservationModel.countDocuments();
+      const totalActive = await ReservationModel.countDocuments({ status: 'active' });
+      console.log('UKUPNO u bazi:', totalAll, 'aktivnih:', totalActive);
+
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
 
@@ -224,6 +233,8 @@ export class Controller {
       const trainings = await TrainingModel.find({
         facility: facilityId, courtId, date: { $gte: startDate, $lt: endDate }, status: { $ne: 'cancelled' }
       }).select('date startTime endTime');
+
+      console.log('schedule vratio:', reservations.length, 'rezervacija,', trainings.length, 'treninga');
 
       res.json({ reservations, trainings, weekStart: startDate, weekEnd: endDate });
     } catch (err: any) {
@@ -267,8 +278,13 @@ export class Controller {
   athleteReservations = async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
+      console.log('=== athleteReservations DEBUG ===');
+      console.log('userId:', userId);
+      const total = await ReservationModel.countDocuments();
+      console.log('UKUPNO rezervacija u bazi:', total);
       const reservations = await ReservationModel.find({ user: userId })
         .populate('facility', 'name city').sort({ date: -1 });
+      console.log('athleteReservations vratio:', reservations.length);
 
       const result = reservations.map(r => {
         const obj: any = r.toObject();
@@ -323,6 +339,11 @@ export class Controller {
         user: userId, facility: facilityId, courtId, courtName: courtName || 'Nepoznat teren',
         sport: sport || 'Nepoznat sport', date: new Date(date), startTime, endTime, status: 'active'
       });
+
+      console.log('=== createReservation DEBUG ===');
+      console.log('Nova rezervacija ID:', reservation._id, 'courtId:', courtId, 'date:', new Date(date).toISOString());
+      const totalAfter = await ReservationModel.countDocuments();
+      console.log('Ukupno rezervacija nakon create:', totalAfter);
 
       res.json({ message: 'OK', reservation });
     } catch (err: any) {
