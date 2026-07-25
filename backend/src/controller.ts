@@ -216,8 +216,6 @@ export class Controller {
 
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
-      const court = facility.courts.find((c: any) => c._id.toString() === courtId);
-      if (!court) return res.json({ message: 'Teren nije pronađen' });
 
       const reservations = await ReservationModel.find({
         facility: facilityId, courtId, date: { $gte: startDate, $lt: endDate }, status: 'active'
@@ -227,8 +225,7 @@ export class Controller {
         facility: facilityId, courtId, date: { $gte: startDate, $lt: endDate }, status: { $ne: 'cancelled' }
       }).select('date startTime endTime');
 
-      res.json({ court: { id: court._id, name: court.name, sport: court.sport, type: court.type },
-                 reservations, trainings, weekStart: startDate, weekEnd: endDate });
+      res.json({ reservations, trainings, weekStart: startDate, weekEnd: endDate });
     } catch (err: any) {
       res.json({ message: err.message });
     }
@@ -293,7 +290,7 @@ export class Controller {
   createReservation = async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const { facilityId, courtId, date, startTime, endTime } = req.body;
+      const { facilityId, courtId, courtName, sport, date, startTime, endTime } = req.body;
 
       // Provera blokade
       const user = await UserModel.findById(userId);
@@ -309,10 +306,6 @@ export class Controller {
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
 
-      const court = facility.courts.find((c: any) => c._id.toString() === courtId);
-      if (!court || !court.isActive)
-        return res.json({ message: 'Teren nije pronađen' });
-
       // Provera preklapanja
       const rDate = new Date(date);
       const dayStart = new Date(rDate.setHours(0, 0, 0, 0));
@@ -327,8 +320,8 @@ export class Controller {
         return res.json({ message: 'Termin je već zauzet' });
 
       const reservation = await ReservationModel.create({
-        user: userId, facility: facilityId, courtId, courtName: court.name,
-        sport: court.sport, date: new Date(date), startTime, endTime, status: 'active'
+        user: userId, facility: facilityId, courtId, courtName: courtName || 'Nepoznat teren',
+        sport: sport || 'Nepoznat sport', date: new Date(date), startTime, endTime, status: 'active'
       });
 
       res.json({ message: 'OK', reservation });

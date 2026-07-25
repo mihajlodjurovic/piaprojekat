@@ -142,6 +142,8 @@ export class FacilityDetailsComponent implements OnInit {
     this.api.createReservation({
       facilityId: this.facilityId,
       courtId: this.selectedCourt._id,
+      courtName: this.selectedCourt.name,
+      sport: this.selectedCourt.sport,
       date: this.selectedSlot.date,
       startTime: `${hour}:00`,
       endTime: `${String(this.selectedSlot.hour + 1).padStart(2, '0')}:00`
