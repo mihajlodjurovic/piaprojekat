@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import bcrypt from 'bcryptjs';
 import UserModel from './models/user';
 import SportFacilityModel from './models/sportFacility';
 import ReservationModel from './models/reservation';
@@ -27,8 +28,12 @@ export class Controller {
       if (!username || !password)
         return res.json({ message: 'Unesite korisničko ime i lozinku' });
 
-      const user = await UserModel.findOne({ username, password });
+      const user = await UserModel.findOne({ username });
       if (!user)
+        return res.json({ message: 'Pogrešno korisničko ime ili lozinka' });
+
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch)
         return res.json({ message: 'Pogrešno korisničko ime ili lozinka' });
 
       if (user.approvalStatus !== 'approved')
@@ -72,8 +77,11 @@ export class Controller {
           return res.json({ message: 'Objekat već ima max 2 zaposlena' });
       }
 
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
       const userData: any = {
-        username, email, password, firstName, lastName, contactPhone, role,
+        username, email, password: hashedPassword, firstName, lastName, contactPhone, role,
         profileImage: req.file ? req.file.filename : 'default-avatar.png',
         approvalStatus: 'pending',
         favoriteSports: role === 'athlete' ? (Array.isArray(favoriteSports) ? favoriteSports.slice(0, 5) : []) : []
@@ -125,7 +133,8 @@ export class Controller {
       if (!user)
         return res.json({ message: 'Token nevalidan ili istekao' });
 
-      user.password = password;
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
       user.resetPasswordToken = undefined;
       user.resetPasswordExpires = undefined;
       await user.save();
