@@ -610,6 +610,9 @@ export class Controller {
       const userId = getUserId(req);
       const { facilityId, isLike, comment } = req.body;
 
+      if (!facilityId)
+        return res.json({ message: 'Morate izabrati sportski objekat' });
+
       const confirmed = await ReservationModel.countDocuments({
         user: userId, facility: facilityId, attendanceStatus: 'confirmed'
       });
