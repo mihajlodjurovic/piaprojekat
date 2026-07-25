@@ -223,7 +223,9 @@ export class Controller {
       }).select('date startTime endTime');
 
       const trainings = await TrainingModel.find({
-        facility: facilityId, courtName, date: { $gte: startDate, $lt: endDate }, status: { $ne: 'cancelled' }
+        facility: facilityId,
+        courtName: { $in: [courtName, '', null] },
+        date: { $gte: startDate, $lt: endDate }, status: { $ne: 'cancelled' }
       }).select('date startTime endTime');
 
       res.json({ reservations, trainings, weekStart: startDate, weekEnd: endDate });

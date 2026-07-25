@@ -89,14 +89,14 @@ export class FacilityDetailsComponent implements OnInit {
     const d = new Date(this.weekStart);
     d.setDate(d.getDate() - 7);
     this.setWeek(d);
-    if (this.selectedCourt) this.loadSchedule(this.selectedCourt._id);
+    if (this.selectedCourt) this.loadSchedule(this.selectedCourt.name);
   }
 
   nextWeek() {
     const d = new Date(this.weekStart);
     d.setDate(d.getDate() + 7);
     this.setWeek(d);
-    if (this.selectedCourt) this.loadSchedule(this.selectedCourt._id);
+    if (this.selectedCourt) this.loadSchedule(this.selectedCourt.name);
   }
 
   isSlotTaken(date: Date, hour: number): boolean {

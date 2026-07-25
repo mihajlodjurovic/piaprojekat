@@ -290,15 +290,18 @@ async function seed() {
     { athlete: ath1Id, trainer: trIds[0], facility: fac1Id, courtId: f1c[0]._id || null, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(-10), startTime: '10:00', endTime: '11:00', price: 2000, status: 'completed', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath1Id, trainer: trIds[0], facility: fac1Id, courtId: f1c[0]._id || null, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(5), startTime: '10:00', endTime: '11:00', price: 2000, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath1Id, trainer: trIds[1], facility: fac1Id, courtId: f1c[3]._id || null, courtName: f1c[3].name, sport: 'Fudbal', date: dateOffset(8), startTime: '17:00', endTime: '19:00', price: 5000, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
+    { athlete: ath1Id, trainer: trIds[0], facility: fac1Id, courtId: f1c[0]._id || null, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(1), startTime: '14:00', endTime: '15:00', price: 2000, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath2Id, trainer: trIds[3], facility: fac2Id, courtId: f2c[3]._id || null, courtName: f2c[3].name, sport: 'Odbojka', date: dateOffset(-5), startTime: '18:00', endTime: '20:00', price: 3000, status: 'completed', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath2Id, trainer: trIds[3], facility: fac2Id, courtId: f2c[3]._id || null, courtName: f2c[3].name, sport: 'Odbojka', date: dateOffset(4), startTime: '18:00', endTime: '20:00', price: 3000, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath2Id, trainer: trIds[4], facility: fac2Id, courtId: f2c[5]._id || null, courtName: f2c[5].name, sport: 'Plivanje', date: dateOffset(6), startTime: '08:00', endTime: '09:00', price: 1600, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
+    { athlete: ath2Id, trainer: trIds[4], facility: fac2Id, courtId: f2c[5]._id || null, courtName: f2c[5].name, sport: 'Plivanje', date: dateOffset(2), startTime: '10:00', endTime: '11:00', price: 1600, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath3Id, trainer: trIds[1], facility: fac1Id, courtId: f1c[4]._id || null, courtName: f1c[4].name, sport: 'Košarka', date: dateOffset(-7), startTime: '14:00', endTime: '16:00', price: 5000, status: 'completed', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath3Id, trainer: trIds[1], facility: fac1Id, courtId: f1c[4]._id || null, courtName: f1c[4].name, sport: 'Košarka', date: dateOffset(6), startTime: '14:00', endTime: '16:00', price: 5000, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { athlete: ath3Id, trainer: trIds[5], facility: fac3Id, courtId: f3c[2]._id || null, courtName: f3c[2].name, sport: 'Košarka', date: dateOffset(10), startTime: '10:00', endTime: '12:00', price: 3600, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
-    { athlete: ath1Id, trainer: trIds[2], facility: fac1Id, courtId: f1c[6]._id || null, courtName: f1c[6].name, sport: 'Plivanje', date: dateOffset(12), startTime: '11:00', endTime: '12:00', price: 1800, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() }
+    { athlete: ath1Id, trainer: trIds[2], facility: fac1Id, courtId: f1c[6]._id || null, courtName: f1c[6].name, sport: 'Plivanje', date: dateOffset(12), startTime: '11:00', endTime: '12:00', price: 1800, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
+    { athlete: ath3Id, trainer: trIds[1], facility: fac1Id, courtId: f1c[4]._id || null, courtName: f1c[4].name, sport: 'Košarka', date: dateOffset(0), startTime: '16:00', endTime: '18:00', price: 5000, status: 'scheduled', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() }
   ]);
-  console.log('  ✅ 10 treninga (3 održana, 7 zakazana)');
+  console.log('  ✅ 13 treninga (3 održana, 10 zakazana, 3 u tekućoj nedelji)');
 
   // ╔══════════════════════════════════════════╗
   // ║           PORUDŽBINE (10)                ║
@@ -341,7 +344,7 @@ async function seed() {
   console.log('   • 6 korisnika        • 7 trenera');
   console.log('   • 14 artikala opreme • 6 promocija');
   console.log(`   • ${reservations.length} rezervacija   • 12 recenzija`);
-  console.log('   • 10 treninga        • 10 porudžbina');
+  console.log('   • 13 treninga        • 10 porudžbina');
   console.log('   • 6 saigrača\n');
   console.log('┌──────────────────────────────────────────────────────────────┐');
   console.log('│                   📋 DEMO NALOZI                            │');
