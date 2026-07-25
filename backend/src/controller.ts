@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import * as bcrypt from 'bcryptjs';
+const bcrypt = require('bcryptjs');
 import UserModel from './models/user';
 import SportFacilityModel from './models/sportFacility';
 import ReservationModel from './models/reservation';
