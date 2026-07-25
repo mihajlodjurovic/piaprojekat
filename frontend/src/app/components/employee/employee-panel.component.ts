@@ -195,7 +195,9 @@ export class EmployeePanelComponent implements OnInit {
 
   loadCalendarData() {
     if (!this.calFacilityId || !this.calCourtId) return;
-    this.api.getSchedule(this.calFacilityId, this.calCourtId, this.calWeekStart.toISOString()).subscribe({
+    const court = this.calCourts.find((c: any) => c._id === this.calCourtId);
+    const courtName = court?.name || '';
+    this.api.getSchedule(this.calFacilityId, courtName, this.calWeekStart.toISOString()).subscribe({
       next: (res: any) => { this.calReservations = res.reservations || []; this.calTrainings = res.trainings || []; }
     });
   }

@@ -7,6 +7,7 @@ let Training = new Schema({
   trainer: { type: Schema.Types.ObjectId, ref: 'TrainerModel', required: true },
   facility: { type: Schema.Types.ObjectId, ref: 'SportFacilityModel', required: true },
   courtId: { type: Schema.Types.ObjectId },
+  courtName: { type: String },
   sport: { type: String, required: true },
   date: { type: Date, required: true },
   startTime: { type: String, required: true },

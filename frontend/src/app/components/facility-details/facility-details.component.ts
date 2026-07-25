@@ -51,11 +51,11 @@ export class FacilityDetailsComponent implements OnInit {
     this.selectedCourt = court;
     this.selectedSlot = null;
     this.reservationMsg = '';
-    this.loadSchedule(court._id);
+    this.loadSchedule(court.name);
   }
 
-  loadSchedule(courtId: string) {
-    this.api.getSchedule(this.facilityId, courtId, this.weekStart.toISOString()).subscribe({
+  loadSchedule(courtName: string) {
+    this.api.getSchedule(this.facilityId, courtName, this.weekStart.toISOString()).subscribe({
       next: (res: any) => {
         this.reservations = res.reservations || [];
         this.trainings = res.trainings || [];
@@ -154,7 +154,7 @@ export class FacilityDetailsComponent implements OnInit {
           this.reservationOk = true;
           this.reservationMsg = '✅ Termin uspešno rezervisan!';
           this.selectedSlot = null;
-          this.loadSchedule(this.selectedCourt._id);
+          this.loadSchedule(this.selectedCourt.name);
         } else {
           this.reservationOk = false;
           this.reservationMsg = res.message || 'Greška pri rezervaciji';

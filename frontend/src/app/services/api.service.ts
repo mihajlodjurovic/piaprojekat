@@ -53,8 +53,8 @@ export class ApiService {
     return this.http.get<any>(`${this.uri}/facilities/${id}`);
   }
 
-  getSchedule(facilityId: string, courtId: string, weekStart: string) {
-    return this.http.get<any>(`${this.uri}/schedule/${facilityId}/${courtId}`, { params: { weekStart } });
+  getSchedule(facilityId: string, courtName: string, weekStart: string) {
+    return this.http.get<any>(`${this.uri}/schedule/${facilityId}`, { params: { weekStart, courtName } });
   }
 
   // ==================== ATHLETE ====================

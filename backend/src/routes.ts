@@ -55,7 +55,7 @@ router.route('/me').post((req, res) => ctrl.getUser(req, res));
 router.route('/home').get((req, res) => ctrl.home(req, res));
 router.route('/facilities/search').get((req, res) => ctrl.facilitiesSearch(req, res));
 router.route('/facilities/:id').get((req, res) => ctrl.facilityDetails(req, res));
-router.route('/schedule/:facilityId/:courtId').get((req, res) => ctrl.schedule(req, res));
+router.route('/schedule/:facilityId').get((req, res) => ctrl.schedule(req, res));
 
 // ==================== SPORTISTA ====================
 router.route('/athlete/profile').post((req, res) => ctrl.athleteProfile(req, res));

@@ -209,42 +209,22 @@ export class Controller {
 
   schedule = async (req: Request, res: Response) => {
     try {
-      const { facilityId, courtId } = req.params;
+      const { facilityId } = req.params;
+      const courtName = req.query.courtName as string;
       const startDate = new Date(req.query.weekStart as string);
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 7);
-
-      console.log('=== schedule DEBUG ===');
-      console.log('facilityId:', facilityId, 'courtId:', courtId);
-      console.log('startDate:', startDate.toISOString(), 'endDate:', endDate.toISOString());
-
-      // Broj svih rezervacija u bazi (bez filtera) - dijagnostika
-      const totalAll = await ReservationModel.countDocuments();
-      const totalActive = await ReservationModel.countDocuments({ status: 'active' });
-      const totalForFacility = await ReservationModel.countDocuments({ facility: facilityId, status: 'active' });
-      const totalForCourt = await ReservationModel.countDocuments({ facility: facilityId, courtId, status: 'active' });
-      console.log('UKUPNO u bazi:', totalAll, 'aktivnih:', totalActive);
-      console.log('Za ovaj objekat (bez filtera datuma):', totalForFacility);
-      console.log('Za ovaj objekat+teren (bez filtera datuma):', totalForCourt);
-      console.log('Datumski opseg:', startDate.toISOString(), '-', endDate.toISOString());
 
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
 
       const reservations = await ReservationModel.find({
-        facility: facilityId, courtId, date: { $gte: startDate, $lt: endDate }, status: 'active'
+        facility: facilityId, courtName, date: { $gte: startDate, $lt: endDate }, status: 'active'
       }).select('date startTime endTime');
 
       const trainings = await TrainingModel.find({
-        facility: facilityId, courtId, date: { $gte: startDate, $lt: endDate }, status: { $ne: 'cancelled' }
+        facility: facilityId, courtName, date: { $gte: startDate, $lt: endDate }, status: { $ne: 'cancelled' }
       }).select('date startTime endTime');
-
-      console.log('schedule vratio:', reservations.length, 'rezervacija,', trainings.length, 'treninga');
-      if (totalForCourt > 0 && reservations.length === 0) {
-        // Postoje rezervacije za ovaj teren, ali ne u ovom opsegu - prikazi sve datume
-        const allForCourt = await ReservationModel.find({ facility: facilityId, courtId, status: 'active' }).select('date startTime').limit(5);
-        console.log('Primeri rezervacija za ovaj teren (datumi):', allForCourt.map(r => ({ date: r.date.toISOString(), start: r.startTime })));
-      }
 
       res.json({ reservations, trainings, weekStart: startDate, weekEnd: endDate });
     } catch (err: any) {
@@ -288,13 +268,8 @@ export class Controller {
   athleteReservations = async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      console.log('=== athleteReservations DEBUG ===');
-      console.log('userId:', userId);
-      const total = await ReservationModel.countDocuments();
-      console.log('UKUPNO rezervacija u bazi:', total);
       const reservations = await ReservationModel.find({ user: userId })
         .populate('facility', 'name city').sort({ date: -1 });
-      console.log('athleteReservations vratio:', reservations.length);
 
       const result = reservations.map(r => {
         const obj: any = r.toObject();
@@ -332,12 +307,15 @@ export class Controller {
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
 
-      // Provera preklapanja
+      if (!courtName || !sport)
+        return res.json({ message: 'Nedostaju podaci o terenu (courtName, sport)' });
+
+      // Provera preklapanja (po courtName, pouzdanije od courtId)
       const rDate = new Date(date);
       const dayStart = new Date(rDate.setHours(0, 0, 0, 0));
       const dayEnd = new Date(new Date(rDate).setHours(23, 59, 59, 999));
       const overlaps = await ReservationModel.find({
-        facility: facilityId, courtId,
+        facility: facilityId, courtName,
         date: { $gte: dayStart, $lt: dayEnd },
         status: 'active',
         startTime: { $lt: endTime }, endTime: { $gt: startTime }
@@ -346,14 +324,9 @@ export class Controller {
         return res.json({ message: 'Termin je već zauzet' });
 
       const reservation = await ReservationModel.create({
-        user: userId, facility: facilityId, courtId, courtName: courtName || 'Nepoznat teren',
-        sport: sport || 'Nepoznat sport', date: new Date(date), startTime, endTime, status: 'active'
+        user: userId, facility: facilityId, courtId, courtName,
+        sport, date: new Date(date), startTime, endTime, status: 'active'
       });
-
-      console.log('=== createReservation DEBUG ===');
-      console.log('Nova rezervacija ID:', reservation._id, 'courtId:', courtId, 'date:', new Date(date).toISOString());
-      const totalAfter = await ReservationModel.countDocuments();
-      console.log('Ukupno rezervacija nakon create:', totalAfter);
 
       res.json({ message: 'OK', reservation });
     } catch (err: any) {
@@ -517,7 +490,7 @@ export class Controller {
   createTraining = async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req);
-      const { trainerId, facilityId, courtId, sport, date, startTime, endTime } = req.body;
+      const { trainerId, facilityId, courtId, courtName, sport, date, startTime, endTime } = req.body;
       const trainer = await TrainerModel.findById(trainerId);
       if (!trainer || !trainer.isActive)
         return res.json({ message: 'Trener nije pronađen' });
@@ -534,7 +507,7 @@ export class Controller {
 
       const training = await TrainingModel.create({
         athlete: userId, trainer: trainerId, facility: facilityId,
-        courtId: courtId || null, sport, date: new Date(date),
+        courtId: courtId || null, courtName: courtName || '', sport, date: new Date(date),
         startTime, endTime, price: trainer.pricePerHour
       });
       res.json({ message: 'OK', training });
