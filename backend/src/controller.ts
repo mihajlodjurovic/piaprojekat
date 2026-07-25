@@ -310,7 +310,8 @@ export class Controller {
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
 
-      const court = facility.courts.id(courtId);
+      const mongoose = require('mongoose');
+      const court = facility.courts.id(new mongoose.Types.ObjectId(courtId));
       if (!court || !court.isActive)
         return res.json({ message: 'Teren nije pronađen' });
 
