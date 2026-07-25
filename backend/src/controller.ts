@@ -221,7 +221,12 @@ export class Controller {
       // Broj svih rezervacija u bazi (bez filtera) - dijagnostika
       const totalAll = await ReservationModel.countDocuments();
       const totalActive = await ReservationModel.countDocuments({ status: 'active' });
+      const totalForFacility = await ReservationModel.countDocuments({ facility: facilityId, status: 'active' });
+      const totalForCourt = await ReservationModel.countDocuments({ facility: facilityId, courtId, status: 'active' });
       console.log('UKUPNO u bazi:', totalAll, 'aktivnih:', totalActive);
+      console.log('Za ovaj objekat (bez filtera datuma):', totalForFacility);
+      console.log('Za ovaj objekat+teren (bez filtera datuma):', totalForCourt);
+      console.log('Datumski opseg:', startDate.toISOString(), '-', endDate.toISOString());
 
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
@@ -235,6 +240,11 @@ export class Controller {
       }).select('date startTime endTime');
 
       console.log('schedule vratio:', reservations.length, 'rezervacija,', trainings.length, 'treninga');
+      if (totalForCourt > 0 && reservations.length === 0) {
+        // Postoje rezervacije za ovaj teren, ali ne u ovom opsegu - prikazi sve datume
+        const allForCourt = await ReservationModel.find({ facility: facilityId, courtId, status: 'active' }).select('date startTime').limit(5);
+        console.log('Primeri rezervacija za ovaj teren (datumi):', allForCourt.map(r => ({ date: r.date.toISOString(), start: r.startTime })));
+      }
 
       res.json({ reservations, trainings, weekStart: startDate, weekEnd: endDate });
     } catch (err: any) {
