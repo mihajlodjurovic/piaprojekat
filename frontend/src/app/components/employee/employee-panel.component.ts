@@ -74,6 +74,8 @@ export class EmployeePanelComponent implements OnInit {
     this.loadOrders();
   }
 
+  setTab(tab: string) { this.activeTab = tab; this.msg = ''; this.err = ''; }
+
   logout() { localStorage.clear(); this.router.navigate(['/']); }
 
   onFileSelected(event: any) {
@@ -82,6 +84,10 @@ export class EmployeePanelComponent implements OnInit {
   }
 
   updateProfile() {
+    this.msg = ''; this.err = '';
+    if (!this.profileForm.firstName?.trim() || !this.profileForm.lastName?.trim() || !this.profileForm.contactPhone?.trim()) {
+      this.err = 'Ime, prezime i telefon su obavezni.'; return;
+    }
     this.saving = true;
     const fd = new FormData();
     fd.append('firstName', this.profileForm.firstName);
@@ -95,6 +101,10 @@ export class EmployeePanelComponent implements OnInit {
   }
 
   createFacility() {
+    this.msg = ''; this.err = '';
+    if (!this.newFac.name?.trim() || !this.newFac.city?.trim() || !this.newFac.address?.trim() || !this.newFac.description?.trim()) {
+      this.err = 'Naziv, grad, adresa i opis su obavezni.'; return;
+    }
     this.api.createFacility(this.newFac).subscribe({
       next: () => { this.msg = 'Objekat kreiran (čeka odobrenje)'; this.newFac = { name: '', city: '', address: '', description: '', pricePerHour: 0, maxNoShows: 3, courts: [] }; this.loadAll(); },
       error: (err) => this.err = err.error?.message
@@ -146,6 +156,10 @@ export class EmployeePanelComponent implements OnInit {
   }
 
   createPromotion() {
+    this.msg = ''; this.err = '';
+    if (!this.promoForm.name?.trim() || !this.promoForm.facilityId || !this.promoForm.sport?.trim() || !this.promoForm.startDate || !this.promoForm.endDate || this.promoForm.discountValue <= 0) {
+      this.err = 'Sva polja su obavezna.'; return;
+    }
     this.api.createPromotion(this.promoForm).subscribe({
       next: () => { this.msg = 'Promocija kreirana'; this.loadPromotions(); },
       error: (err) => this.err = err.error?.message
@@ -159,6 +173,10 @@ export class EmployeePanelComponent implements OnInit {
   }
 
   createEquipment() {
+    this.msg = ''; this.err = '';
+    if (!this.eqForm.name?.trim() || !this.eqForm.sport?.trim() || this.eqForm.price <= 0 || this.eqForm.stock <= 0 || !this.eqForm.facility) {
+      this.err = 'Sva polja su obavezna.'; return;
+    }
     this.api.createEquipment(this.eqForm).subscribe({
       next: () => { this.msg = 'Oprema dodata'; this.loadEquipment(); },
       error: (err) => this.err = err.error?.message

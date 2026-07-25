@@ -69,6 +69,8 @@ export class AthletePanelComponent implements OnInit {
 
   logout() { localStorage.clear(); this.router.navigate(['/']); }
 
+  setTab(tab: string) { this.activeTab = tab; this.msg = ''; this.err = ''; this.tMsg = ''; this.tErr = ''; this.trnMsg = ''; this.trnErr = ''; this.cartMsg = ''; this.cartErr = ''; this.revMsg = ''; this.revErr = ''; }
+
   loadProfile() {
     this.api.getAthleteProfile().subscribe({
       next: (res: any) => {
@@ -90,7 +92,11 @@ export class AthletePanelComponent implements OnInit {
   }
 
   updateProfile() {
-    this.saving = true; this.msg = ''; this.err = '';
+    this.msg = ''; this.err = '';
+    if (!this.profileForm.firstName?.trim() || !this.profileForm.lastName?.trim() || !this.profileForm.contactPhone?.trim()) {
+      this.err = 'Ime, prezime i telefon su obavezni.'; return;
+    }
+    this.saving = true;
     const fd = new FormData();
     fd.append('firstName', this.profileForm.firstName);
     fd.append('lastName', this.profileForm.lastName);
@@ -146,6 +152,10 @@ export class AthletePanelComponent implements OnInit {
   loadTeammatePosts() { this.api.getTeammates().subscribe({ next: (res: any) => this.teammatePosts = res.posts || [] }); }
 
   createTeammatePost() {
+    this.tMsg = ''; this.tErr = '';
+    if (!this.tpSport || !this.tpCity?.trim() || !this.tpDate || !this.tpStart || !this.tpEnd) {
+      this.tErr = 'Sport, grad, datum i termin su obavezni.'; return;
+    }
     this.api.createTeammatePost({
       sport: this.tpSport, city: this.tpCity, date: this.tpDate,
       startTime: this.tpStart, endTime: this.tpEnd,
@@ -191,6 +201,10 @@ export class AthletePanelComponent implements OnInit {
   }
 
   scheduleTraining() {
+    this.trnMsg = ''; this.trnErr = '';
+    if (!this.trnSport?.trim() || !this.trnDate || !this.trnStart || !this.trnEnd) {
+      this.trnErr = 'Sport, datum i termin su obavezni.'; return;
+    }
     this.api.createTraining({
       trainerId: this.selectedTrainer._id,
       facilityId: this.selectedTrainer.facility?._id || this.selectedTrainer.facility,
@@ -232,6 +246,9 @@ export class AthletePanelComponent implements OnInit {
 
   addReview() {
     this.revMsg = ''; this.revErr = '';
+    if (!this.revFacilityId?.trim()) {
+      this.revErr = 'ID objekta je obavezan.'; return;
+    }
     this.api.createReview({
       facilityId: this.revFacilityId, isLike: this.revIsLike, comment: this.revComment
     }).subscribe({

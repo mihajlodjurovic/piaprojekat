@@ -2,11 +2,11 @@
   <a routerLink="/" class="logo">🏟️ SportSphere Hub — Admin</a>
   <nav>
     <span class="user-info" *ngIf="user">🔧 {{ user.firstName }} {{ user.lastName }} (Admin)</span>
-    <button (click)="activeTab = 'users'">Korisnici</button>
-    <button (click)="activeTab = 'requests'">Zahtevi</button>
-    <button (click)="activeTab = 'facilities'">Objekti</button>
-    <button (click)="activeTab = 'trainers'">Treneri</button>
-    <button (click)="activeTab = 'sports'">Sportovi</button>
+    <button (click)="setTab('users')">Korisnici</button>
+    <button (click)="setTab('requests')">Zahtevi</button>
+    <button (click)="setTab('facilities')">Objekti</button>
+    <button (click)="setTab('trainers')">Treneri</button>
+    <button (click)="setTab('sports')">Sportovi</button>
     <button (click)="logout()">Izloguj se</button>
   </nav>
 </header>

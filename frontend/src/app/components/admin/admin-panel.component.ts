@@ -42,6 +42,8 @@ export class AdminPanelComponent implements OnInit {
 
   logout() { localStorage.clear(); this.router.navigate(['/']); }
 
+  setTab(tab: string) { this.activeTab = tab; this.msg = ''; this.err = ''; }
+
   toggleUser(id: string, currentActive: boolean) {
     this.api.updateAdminUser(id, { isActive: !currentActive }).subscribe({
       next: () => { this.msg = 'Status korisnika promenjen'; this.loadAll(); }

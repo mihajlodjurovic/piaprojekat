@@ -2,13 +2,13 @@
   <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
   <nav>
     <span class="user-info" *ngIf="user">👤 {{ user.firstName }} {{ user.lastName }}</span>
-    <button (click)="activeTab = 'profile'">Profil</button>
-    <button (click)="activeTab = 'reservations'">Rezervacije</button>
-    <button (click)="activeTab = 'teammates'">Saigrači</button>
-    <button (click)="activeTab = 'training'">Treninzi</button>
-    <button (click)="activeTab = 'shop'">Prodavnica</button>
-    <button (click)="activeTab = 'reviews'">Ocene</button>
-    <button (click)="activeTab = 'stats'">Statistika</button>
+    <button (click)="setTab('profile')">Profil</button>
+    <button (click)="setTab('reservations')">Rezervacije</button>
+    <button (click)="setTab('teammates')">Saigrači</button>
+    <button (click)="setTab('training')">Treninzi</button>
+    <button (click)="setTab('shop')">Prodavnica</button>
+    <button (click)="setTab('reviews')">Ocene</button>
+    <button (click)="setTab('stats')">Statistika</button>
     <button (click)="logout()">Izloguj se</button>
   </nav>
 </header>
