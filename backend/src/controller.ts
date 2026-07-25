@@ -216,8 +216,7 @@ export class Controller {
 
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
-      const mongoose = require('mongoose');
-      const court = facility.courts.id(new mongoose.Types.ObjectId(courtId));
+      const court = facility.courts.find((c: any) => c._id.toString() === courtId);
       if (!court) return res.json({ message: 'Teren nije pronađen' });
 
       const reservations = await ReservationModel.find({
@@ -310,8 +309,7 @@ export class Controller {
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
 
-      const mongoose = require('mongoose');
-      const court = facility.courts.id(new mongoose.Types.ObjectId(courtId));
+      const court = facility.courts.find((c: any) => c._id.toString() === courtId);
       if (!court || !court.isActive)
         return res.json({ message: 'Teren nije pronađen' });
 
