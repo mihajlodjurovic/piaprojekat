@@ -1002,7 +1002,7 @@ export class Controller {
 
       for (const court of facility.courts) {
         const courtRes = reservations.filter(
-          (r: any) => r.courtId.toString() === court._id.toString()
+          (r: any) => r.courtId && r.courtId.toString() === court._id.toString()
         );
         const totalHours = courtRes.length;
         const totalWorkingDays = 30;
