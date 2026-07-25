@@ -309,12 +309,6 @@ export class Controller {
       const facility = await SportFacilityModel.findById(facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
 
-      console.log('=== createReservation DEBUG ===');
-      console.log('facilityId:', facilityId);
-      console.log('courtId primljen:', courtId, 'tip:', typeof courtId);
-      console.log('svi court IDs:', facility.courts.map((c: any) => ({ _id: c._id.toString(), name: c.name })));
-      console.log('find rezultat:', facility.courts.find((c: any) => c._id.toString() === courtId));
-
       const court = facility.courts.find((c: any) => c._id.toString() === courtId);
       if (!court || !court.isActive)
         return res.json({ message: 'Teren nije pronađen' });
