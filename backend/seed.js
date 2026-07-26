@@ -125,7 +125,7 @@ async function seed() {
       ],
       workingHours: { open: '08:00', close: '22:00' }, maxNoShows: 3, pricePerHour: 1500,
       location: { latitude: 44.7866, longitude: 20.4489 },
-      mainImage: 'default-facility.jpg', galleryImages: [],
+      mainImage: 'sportski-centar-radnicki-zvezdara-3d-01b.jpg', galleryImages: ['sportski-centar-radnicki-zvezdara-3d-01b.jpg'],
       likes: 78, dislikes: 5, likedBy: [], dislikedBy: [],
       approvalStatus: 'approved', isActive: true, createdAt: new Date(), updatedAt: new Date()
     },
@@ -143,7 +143,7 @@ async function seed() {
       ],
       workingHours: { open: '08:00', close: '22:00' }, maxNoShows: 3, pricePerHour: 1200,
       location: { latitude: 45.2671, longitude: 19.8335 },
-      mainImage: 'default-facility.jpg', galleryImages: [],
+      mainImage: 'images.jpg', galleryImages: ['images.jpg'],
       likes: 56, dislikes: 4, likedBy: [], dislikedBy: [],
       approvalStatus: 'approved', isActive: true, createdAt: new Date(), updatedAt: new Date()
     },
@@ -159,7 +159,7 @@ async function seed() {
       ],
       workingHours: { open: '07:00', close: '23:00' }, maxNoShows: 3, pricePerHour: 1000,
       location: { latitude: 43.3209, longitude: 21.8958 },
-      mainImage: 'default-facility.jpg', galleryImages: [],
+      mainImage: 'DJI_0539-1.png', galleryImages: ['DJI_0539-1.png'],
       likes: 34, dislikes: 1, likedBy: [], dislikedBy: [],
       approvalStatus: 'approved', isActive: true, createdAt: new Date(), updatedAt: new Date()
     }
