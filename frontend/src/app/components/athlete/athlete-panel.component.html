@@ -1,7 +1,7 @@
 <header class="app-header">
-  <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
+  <a routerLink="/" class="logo">SportSphere Hub</a>
   <nav>
-    <span class="user-info" *ngIf="user">👤 {{ user.firstName }} {{ user.lastName }}</span>
+    <span class="user-info" *ngIf="user">{{ user.firstName }} {{ user.lastName }}</span>
     <button (click)="setTab('profile')">Profil</button>
     <button (click)="setTab('reservations')">Rezervacije</button>
     <button (click)="setTab('teammates')">Saigrači</button>
@@ -16,7 +16,7 @@
 <div class="container">
   <!-- PROFIL -->
   <div *ngIf="activeTab === 'profile'">
-    <h2>👤 Moj profil</h2>
+    <h2>Moj profil</h2>
     <div *ngIf="msg" class="alert alert-success">{{ msg }}</div>
     <div *ngIf="err" class="alert alert-error">{{ err }}</div>
     <div class="card">
@@ -37,14 +37,14 @@
         <label>Profilna slika</label>
         <div style="display:flex;align-items:center;gap:12px">
           <input type="file" accept="image/*" (change)="onFileSelected($event)">
-          <button type="button" class="btn btn-outline btn-sm" (click)="generateAvatar()">🎲 Generiši avatar</button>
+          <button type="button" class="btn btn-outline btn-sm" (click)="generateAvatar()">Generisi avatar</button>
         </div>
         <img *ngIf="avatarPreview" [src]="avatarPreview" style="margin-top:8px;width:80px;height:80px;border-radius:50%">
       </div>
-      <button class="btn btn-primary" (click)="updateProfile()" [disabled]="saving">{{ saving ? 'Čuvanje...' : '💾 Sačuvaj izmene' }}</button>
+      <button class="btn btn-primary" (click)="updateProfile()" [disabled]="saving">{{ saving ? 'Čuvanje...' : 'Sacuvaj izmene' }}</button>
     </div>
 
-    <h3 style="margin-top:20px">📋 Moje rezervacije</h3>
+    <h3 style="margin-top:20px">Moje rezervacije</h3>
     <div class="table-wrapper">
       <table>
         <thead><tr>
@@ -62,7 +62,7 @@
             <td>{{ r.facility?.name }}</td><td>{{ r.facility?.city }}</td><td>{{ r.courtName }}</td>
             <td>{{ r.sport }}</td><td>{{ r.date | date:'dd.MM.yyyy.' }}</td>
             <td>{{ r.startTime }} – {{ r.endTime }}</td>
-            <td>{{ r.status === 'active' ? (r.attendanceStatus === 'confirmed' ? '✅ Potvrđeno' : '⏳ Aktivno') : r.status === 'cancelled' ? '❌ Otkazano' : '✔️ Završeno' }}</td>
+            <td>{{ r.status === 'active' ? (r.attendanceStatus === 'confirmed' ? 'Potvrdjeno' : 'Aktivno') : r.status === 'cancelled' ? 'Otkazano' : 'Zavrseno' }}</td>
             <td>
               <button *ngIf="r.canCancel" class="btn btn-danger btn-sm" (click)="cancelReservation(r._id)">Otkaži</button>
               <span *ngIf="!r.canCancel && r.status === 'active'" style="color:var(--text-light);font-size:0.8rem"><12h</span>
@@ -75,7 +75,7 @@
 
   <!-- REZERVACIJE -->
   <div *ngIf="activeTab === 'reservations'">
-    <h2>📅 Pretraga i rezervacija</h2>
+    <h2>Pretraga i rezervacija</h2>
     <div class="card">
       <div class="grid-2">
         <div class="form-group"><label>Naziv objekta</label><input [(ngModel)]="rName"></div>
@@ -83,7 +83,7 @@
         <div class="form-group"><label>Sport</label><input [(ngModel)]="rSport"></div>
         <div class="form-group"><label>Tip</label><select [(ngModel)]="rType"><option value="">Svi</option><option value="outdoor">Otvoreni</option><option value="indoor">Zatvoreni</option></select></div>
       </div>
-      <button class="btn btn-primary" (click)="searchFacilities()">🔍 Pretraži</button>
+      <button class="btn btn-primary" (click)="searchFacilities()">Pretrazi</button>
       <label style="margin-left:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer">
         <input type="checkbox" [(ngModel)]="rFreeToday"> Samo slobodni termini danas
       </label>
@@ -98,7 +98,7 @@
 
   <!-- SAIGRAČI -->
   <div *ngIf="activeTab === 'teammates'">
-    <h2>🤝 Pronađi saigrače</h2>
+    <h2>Pronadji saigrace</h2>
     <div *ngIf="tMsg" class="alert alert-success">{{ tMsg }}</div>
     <div *ngIf="tErr" class="alert alert-error">{{ tErr }}</div>
     <div class="card">
@@ -112,7 +112,7 @@
         <div class="form-group"><label>Nedostaje igrača</label><input type="number" [(ngModel)]="tpMissing" min="1"></div>
       </div>
       <div class="form-group"><label>Opis</label><textarea [(ngModel)]="tpDesc" rows="2"></textarea></div>
-      <button class="btn btn-primary" (click)="createTeammatePost()">📢 Objavi</button>
+      <button class="btn btn-primary" (click)="createTeammatePost()">Objavi</button>
     </div>
 
     <h4>Aktivni oglasi</h4>
@@ -124,7 +124,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap">
         <button *ngIf="!p.amAuthor && p.myRequestStatus === null" class="btn btn-primary btn-sm" (click)="joinTeammate(p._id)">Pridruži se</button>
         <span *ngIf="p.myRequestStatus === 'pending'" style="color:var(--warning)">Zahtev na čekanju</span>
-        <span *ngIf="p.myRequestStatus === 'approved'" style="color:var(--success)">✅ Odobren</span>
+        <span *ngIf="p.myRequestStatus === 'approved'" style="color:var(--success)">Odobren</span>
         <button *ngIf="p.amAuthor && p.isActive" class="btn btn-danger btn-sm" (click)="closeTeammate(p._id)">Zatvori oglas</button>
       </div>
       <div *ngIf="p.amAuthor && p.joinRequests?.length > 0" style="margin-top:8px">
@@ -144,14 +144,14 @@
 
   <!-- TRENINZI -->
   <div *ngIf="activeTab === 'training'">
-    <h2>🏋️ Individualni treninzi</h2>
+    <h2>Individualni treninzi</h2>
     <div *ngIf="trnMsg" class="alert alert-success">{{ trnMsg }}</div>
     <div *ngIf="trnErr" class="alert alert-error">{{ trnErr }}</div>
     <h4>Dostupni treneri</h4>
     <div class="grid-2">
       <div *ngFor="let t of trainers" class="card">
         <strong>{{ t.firstName }} {{ t.lastName }}</strong>
-        <p>{{ t.specialization?.join(', ') }} | ⭐ {{ t.averageRating }}</p>
+        <p>{{ t.specialization?.join(', ') }} | Ocena: {{ t.averageRating }}</p>
         <p style="color:var(--primary);font-weight:600">{{ t.pricePerHour }} RSD/h</p>
         <p style="font-size:0.85rem;color:var(--text-light)">{{ t.facility?.name }}</p>
         <button class="btn btn-outline btn-sm" (click)="openTrainingForm(t)">Zakaži</button>
@@ -165,7 +165,7 @@
         <div class="form-group"><label>Početak</label><input type="time" [(ngModel)]="trnStart"></div>
         <div class="form-group"><label>Kraj</label><input type="time" [(ngModel)]="trnEnd"></div>
       </div>
-      <button class="btn btn-success" (click)="scheduleTraining()">✅ Zakaži</button>
+      <button class="btn btn-success" (click)="scheduleTraining()">Zakazi</button>
       <button class="btn btn-outline btn-sm" style="margin-left:8px" (click)="showTrainingForm = false">Otkaži</button>
     </div>
     <h4 style="margin-top:20px">Moji treninzi</h4>
@@ -178,7 +178,7 @@
 
   <!-- PRODAVNICA -->
   <div *ngIf="activeTab === 'shop'">
-    <h2>🛒 Prodavnica opreme</h2>
+    <h2>Prodavnica opreme</h2>
     <div *ngIf="cartMsg" class="alert alert-success">{{ cartMsg }}</div>
     <div *ngIf="cartErr" class="alert alert-error">{{ cartErr }}</div>
     <div class="grid-3">
@@ -194,12 +194,12 @@
       </div>
     </div>
     <div *ngIf="cart.length > 0" class="card" style="margin-top:16px">
-      <h4>🛒 Korpa</h4>
+      <h4>Korpa</h4>
       <div *ngFor="let item of cart" style="display:flex;justify-content:space-between;padding:4px 0">
         <span>{{ item.name }} x{{ item.quantity }}</span><span>{{ item.price * item.quantity }} RSD</span>
       </div>
       <div class="cart-total" style="text-align:right;margin-top:8px">Ukupno: {{ cartTotal }} RSD</div>
-      <button class="btn btn-success" (click)="checkout()" [disabled]="cart.length === 0">🛍️ Naruči</button>
+      <button class="btn btn-success" (click)="checkout()" [disabled]="cart.length === 0">Naruci</button>
     </div>
     <h4 style="margin-top:20px">Moje porudžbine</h4>
     <div *ngFor="let o of orders" class="card">
@@ -212,13 +212,13 @@
 
   <!-- OCENE -->
   <div *ngIf="activeTab === 'reviews'">
-    <h2>⭐ Oceni objekte</h2>
+    <h2>Oceni objekte</h2>
     <div *ngIf="revMsg" class="alert alert-success">{{ revMsg }}</div>
     <div *ngIf="revErr" class="alert alert-error">{{ revErr }}</div>
     <div class="card">
       <div class="grid-2">
         <div class="form-group"><label>Objekat</label><input [(ngModel)]="revFacilityId" placeholder="Unesite ID objekta"></div>
-        <div class="form-group"><label>Ocena</label><select [(ngModel)]="revIsLike"><option [ngValue]="true">👍 Sviđa mi se</option><option [ngValue]="false">👎 Ne sviđa mi se</option></select></div>
+        <div class="form-group"><label>Ocena</label><select [(ngModel)]="revIsLike"><option [ngValue]="true">Svidja mi se</option><option [ngValue]="false">Ne svidja mi se</option></select></div>
       </div>
       <div class="form-group"><label>Komentar (opciono)</label><textarea [(ngModel)]="revComment" rows="2" maxlength="500"></textarea></div>
       <button class="btn btn-primary" (click)="addReview()">Pošalji ocenu</button>
@@ -227,7 +227,7 @@
 
   <!-- STATISTIKA -->
   <div *ngIf="activeTab === 'stats'">
-    <h2>📊 Moja statistika</h2>
+    <h2>Moja statistika</h2>
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-value">{{ athleteStats.totalReservations || 0 }}</div><div class="stat-label">Ukupno rezervacija</div></div>
       <div class="stat-card"><div class="stat-value">{{ athleteStats.totalSpending || 0 }}</div><div class="stat-label">RSD potrošeno</div></div>

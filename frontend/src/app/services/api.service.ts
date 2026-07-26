@@ -9,19 +9,19 @@ export class ApiService {
   private http = inject(HttpClient);
   uri = 'http://localhost:4000/api';
 
-  // Helper: add userId to body (for "auth")
+  // dodaje userId u body — simulira auth (nije JWT, znam)
   private withUser(body: any): any {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     return { ...body, userId: user._id || null };
   }
 
-  // Helper: add userId to params
+  // dodaje userId u params
   private paramsWithUser(params: any = {}): any {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     return { ...params, userId: user._id || null };
   }
 
-  // ==================== AUTH ====================
+  // ===== AUTH =====
 
   login(username: string, password: string) {
     return this.http.post<any>(`${this.uri}/login`, { username, password });
@@ -39,7 +39,7 @@ export class ApiService {
     return this.http.post<any>(`${this.uri}/reset-password`, { token, password });
   }
 
-  // ==================== PUBLIC ====================
+  // ===== PUBLIC =====
 
   getHome() {
     return this.http.get<any>(`${this.uri}/home`);
@@ -61,7 +61,7 @@ export class ApiService {
     return this.http.get<any>(`${this.uri}/schedule/${facilityId}`, { params: { weekStart, courtName } });
   }
 
-  // ==================== ATHLETE ====================
+  // ===== ATHLETE =====
 
   getAthleteProfile() {
     return this.http.post<any>(`${this.uri}/athlete/profile`, this.withUser({}));
@@ -141,7 +141,7 @@ export class ApiService {
     return this.http.post<any>(`${this.uri}/athlete/statistics`, this.withUser({}));
   }
 
-  // ==================== EMPLOYEE ====================
+  // ===== EMPLOYEE =====
 
   getEmployeeProfile() {
     return this.http.post<any>(`${this.uri}/employee/profile`, this.withUser({}));
@@ -238,7 +238,7 @@ export class ApiService {
       { params: { month, year }, responseType: 'blob' });
   }
 
-  // ==================== ADMIN ====================
+  // ===== ADMIN =====
 
   getAdminUsers() {
     return this.http.post<any>(`${this.uri}/admin/users`, this.withUser({}));

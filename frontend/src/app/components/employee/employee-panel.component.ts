@@ -75,6 +75,7 @@ export class EmployeePanelComponent implements OnInit {
     this.loadOrders();
   }
 
+  // menja tab i cisti stare poruke
   setTab(tab: string) { this.activeTab = tab; this.msg = ''; this.err = ''; }
 
   logout() { localStorage.clear(); this.router.navigate(['/']); }
@@ -103,10 +104,11 @@ export class EmployeePanelComponent implements OnInit {
 
   createFacility() {
     this.msg = ''; this.err = '';
+    // provera obaveznih polja
     if (!this.newFac.name?.trim() || !this.newFac.city?.trim() || !this.newFac.address?.trim() || !this.newFac.description?.trim()) {
       this.err = 'Naziv, grad, adresa i opis su obavezni.'; return;
     }
-    // Validacija dužine opisa opreme za terene
+    // ne sme opis opreme da bude duzi od 300 karaktera
     for (const c of this.newFac.courts) {
       if (c.equipmentDescription && c.equipmentDescription.length > 300) {
         this.err = `Opis opreme za "${c.name}" prelazi 300 karaktera.`; return;

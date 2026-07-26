@@ -73,6 +73,7 @@ export class AthletePanelComponent implements OnInit {
   logout() { localStorage.clear(); this.router.navigate(['/']); }
 
   setTab(tab: string) { this.activeTab = tab; this.msg = ''; this.err = ''; this.tMsg = ''; this.tErr = ''; this.trnMsg = ''; this.trnErr = ''; this.cartMsg = ''; this.cartErr = ''; this.revMsg = ''; this.revErr = '';
+    // chartovi se rendaju tek kad se otvori stats tab
     if (tab === 'stats') setTimeout(() => this.renderCharts(), 100); }
 
   loadProfile() {
@@ -276,6 +277,7 @@ export class AthletePanelComponent implements OnInit {
     });
   }
 
+  // chart.js grafikoni — ideja sa stackoverflow-a
   renderCharts() {
     this.renderBarChart();
     this.renderLineChart();

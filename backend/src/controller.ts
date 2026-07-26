@@ -13,16 +13,17 @@ import OrderModel from './models/order';
 import PromotionModel from './models/promotion';
 import SportModel from './models/sport';
 
-// Helper: dobavi ulogovanog korisnika iz localStorage ID-a (salje se u body/query)
+// helper — vadi userId iz body/query/header-a
+// zna se da je ovo malo nesigurno ali radi za sad (nema pravog JWT)
 function getUserId(req: Request): string | null {
-  // Korisnicki ID se salje u body, query, ili header-u
   return req.body.userId || req.query.userId || req.headers['x-user-id'] as string || null;
 }
 
 export class Controller {
 
-  // ==================== AUTH / REGISTRACIJA ====================
+  // ========== AUTH / REGISTRACIJA ==========
 
+  // provereno — radi
   login = async (req: Request, res: Response) => {
     try {
       const { username, password } = req.body;
@@ -115,7 +116,7 @@ export class Controller {
       const user = await UserModel.findOne({ email: req.body.email });
       if (!user) return res.json({ message: 'Ako email postoji, link je poslat' });
 
-      // Generisi prost token
+      // generisi prost token — nista specijalno
       const resetToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
       user.resetPasswordToken = resetToken;
       user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000);
@@ -161,7 +162,7 @@ export class Controller {
     }
   };
 
-  // ==================== PUBLIC ====================
+  // ========== PUBLIC ==========
 
   home = async (req: Request, res: Response) => {
     try {
@@ -191,7 +192,7 @@ export class Controller {
       let facilities = await SportFacilityModel.find(filter)
         .select('name city address mainImage likes dislikes courts').sort({ likes: -1 });
 
-      // Filter "samo slobodni termini danas"
+      // filter za "samo slobodni termini danas"
       if (onlyFreeToday === 'true') {
         const today = new Date();
         const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -277,7 +278,7 @@ export class Controller {
     }
   };
 
-  // ==================== SPORTISTA ====================
+  // ========== SPORTISTA ==========
 
   athleteProfile = async (req: Request, res: Response) => {
     try {
@@ -338,7 +339,7 @@ export class Controller {
       const userId = getUserId(req);
       const { facilityId, courtId, courtName, sport, date, startTime, endTime } = req.body;
 
-      // Provera blokade
+      // provera dal je korisnik blokiran u objektu
       const user = await UserModel.findById(userId);
       const block = user?.blockedFacilities?.find(
         (b: any) => b.facility.toString() === facilityId
@@ -355,7 +356,7 @@ export class Controller {
       if (!courtName || !sport)
         return res.json({ message: 'Nedostaju podaci o terenu (courtName, sport)' });
 
-      // Provera preklapanja (po courtName, pouzdanije od courtId)
+      // provera preklapanja — po courtName jer je pouzdanije
       const rDate = new Date(date);
       const dayStart = new Date(rDate.setHours(0, 0, 0, 0));
       const dayEnd = new Date(new Date(rDate).setHours(23, 59, 59, 999));
@@ -402,7 +403,7 @@ export class Controller {
     }
   };
 
-  // ==================== SAIGRAČI ====================
+  // ========== SAIGRACI ==========
 
   teammates = async (req: Request, res: Response) => {
     try {
@@ -505,7 +506,7 @@ export class Controller {
     }
   };
 
-  // ==================== TRENINZI ====================
+  // ========== TRENINZI ==========
 
   trainers = async (req: Request, res: Response) => {
     try {
@@ -561,7 +562,7 @@ export class Controller {
     }
   };
 
-  // ==================== PRODAVNICA ====================
+  // ========== PRODAVNICA ==========
 
   equipmentList = async (req: Request, res: Response) => {
     try {
@@ -645,7 +646,7 @@ export class Controller {
     }
   };
 
-  // ==================== OCENE ====================
+  // ========== OCENE ==========
 
   createReview = async (req: Request, res: Response) => {
     try {
@@ -678,7 +679,7 @@ export class Controller {
     }
   };
 
-  // ==================== STATISTIKA ====================
+  // ========== STATISTIKA ==========
 
   statistics = async (req: Request, res: Response) => {
     try {
@@ -711,7 +712,7 @@ export class Controller {
     }
   };
 
-  // ==================== ZAPOSLENI ====================
+  // ========== ZAPOSLENI ==========
 
   employeeProfile = async (req: Request, res: Response) => {
     try {
@@ -891,7 +892,7 @@ export class Controller {
     }
   };
 
-  // ==================== PROMOCIJE ====================
+  // ========== PROMOCIJE ==========
 
   employeePromotions = async (req: Request, res: Response) => {
     try {
@@ -931,7 +932,7 @@ export class Controller {
     }
   };
 
-  // ==================== OPREMA (ZAPOSLENI) ====================
+  // ========== OPREMA (ZAPOSLENI) ==========
 
   employeeEquipment = async (req: Request, res: Response) => {
     try {
@@ -967,7 +968,7 @@ export class Controller {
     }
   };
 
-  // ==================== NARUDŽBINE (ZAPOSLENI) ====================
+  // ========== NARUDZBINE (ZAPOSLENI) ==========
 
   employeeOrders = async (req: Request, res: Response) => {
     try {
@@ -996,7 +997,7 @@ export class Controller {
     }
   };
 
-  // ==================== TRENERI (ZAPOSLENI) ====================
+  // ========== TRENERI (ZAPOSLENI) ==========
 
   employeeTrainersList = async (req: Request, res: Response) => {
     try {
@@ -1022,7 +1023,7 @@ export class Controller {
     }
   };
 
-  // ==================== IZVEŠTAJI (HTML) ====================
+  // ========== IZVESTAJI (PDF) ==========
 
   occupancyReport = async (req: Request, res: Response) => {
     try {
@@ -1114,7 +1115,7 @@ export class Controller {
     }
   };
 
-  // ==================== ADMIN ====================
+  // ========== ADMIN ==========
 
   adminUsers = async (req: Request, res: Response) => {
     try {

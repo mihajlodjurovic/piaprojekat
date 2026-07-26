@@ -1,5 +1,5 @@
 <header class="app-header">
-  <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
+  <a routerLink="/" class="logo">SportSphere Hub</a>
   <nav>
     <a routerLink="/">Početna</a>
     <a routerLink="/login">Prijava</a>
@@ -11,8 +11,8 @@
   <p style="color:var(--text-light)">📍 {{ facility.city }}, {{ facility.address }}</p>
   <p style="margin:8px 0">{{ facility.description }}</p>
   <div style="display:flex;gap:12px;font-weight:600;margin:12px 0">
-    <span>👍 {{ facility.likes }}</span>
-    <span>👎 {{ facility.dislikes }}</span>
+    <span>Likes: {{ facility.likes }}</span>
+    <span>Dislikes: {{ facility.dislikes }}</span>
   </div>
 
   <!-- Galerija -->
@@ -30,7 +30,7 @@
       <span style="float:right;color:var(--primary);font-weight:700">{{ c.pricePerHour }} RSD/h</span>
       <p style="font-size:0.85rem;">🏷️ {{ c.sport }} | {{ c.type === 'outdoor' ? 'Otvoreni' : c.type === 'indoor' ? 'Zatvoreni' : 'Dvorana' }}</p>
       <p style="font-size:0.85rem;color:var(--text-light)">{{ c.equipmentDescription }}</p>
-      <button class="btn btn-outline btn-sm" (click)="selectCourt(c)" style="margin-top:8px">📅 Prikaži raspored</button>
+      <button class="btn btn-outline btn-sm" (click)="selectCourt(c)" style="margin-top:8px">Prikazi raspored</button>
     </div>
   </div>
 
@@ -44,9 +44,9 @@
     </h3>
 
     <div class="calendar-nav">
-      <button class="btn btn-outline btn-sm" (click)="prevWeek()">‹ Prethodna nedelja</button>
-      <span class="week-range">📅 {{ formatDate(weekStart) }} – {{ formatDate(weekEnd) }}</span>
-      <button class="btn btn-outline btn-sm" (click)="nextWeek()">Sledeća nedelja ›</button>
+      <button class="btn btn-outline btn-sm" (click)="prevWeek()">Prethodna nedelja</button>
+      <span class="week-range">{{ formatDate(weekStart) }} – {{ formatDate(weekEnd) }}</span>
+      <button class="btn btn-outline btn-sm" (click)="nextWeek()">Sledeca nedelja</button>
     </div>
 
     <div class="calendar-grid">
@@ -79,14 +79,14 @@
       <p><strong>Izabrani termin:</strong> {{ selectedSlot.date | date:'dd.MM.yyyy.' }} {{ selectedSlot.hour }}:00 – {{ selectedSlot.hour + 1 }}:00</p>
       <p style="color:var(--primary);font-weight:600">Cena: {{ selectedCourt.pricePerHour }} RSD</p>
       <button class="btn btn-success" (click)="makeReservation()" [disabled]="reserving">
-        {{ reserving ? 'Rezervisanje...' : '✅ Rezerviši' }}
+        {{ reserving ? 'Rezervisanje...' : 'Rezervisi' }}
       </button>
     </div>
 
     <div *ngIf="reservationMsg" class="alert" [ngClass]="reservationOk ? 'alert-success' : 'alert-error'">{{ reservationMsg }}</div>
   </div>
 
-  <h3 style="margin-top:24px">💬 Poslednji komentari</h3>
+  <h3 style="margin-top:24px">Poslednji komentari</h3>
   <div *ngFor="let r of reviews" class="card" [ngStyle]="isOwnReview(r) ? {'border':'2px solid var(--primary)','background':'var(--primary-light, #eff6ff)'} : {}">
     <strong>{{ r.user?.firstName }} {{ r.user?.lastName }}</strong>
     <span *ngIf="isOwnReview(r)" style="color:var(--primary);font-weight:700;margin-left:8px">(Moj komentar)</span>

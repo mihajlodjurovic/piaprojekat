@@ -1,5 +1,5 @@
 <header class="app-header">
-  <a routerLink="/" class="logo">🏟️ SportSphere Hub</a>
+  <a routerLink="/" class="logo">SportSphere Hub</a>
   <nav>
     <a routerLink="/">Početna</a>
     <a routerLink="/login">Prijava</a>
@@ -8,7 +8,7 @@
 
 <div class="container" style="max-width:700px;margin:20px auto">
   <div class="card">
-    <h2 style="text-align:center;margin-bottom:20px">📝 Registracija</h2>
+    <h2 style="text-align:center;margin-bottom:20px">Registracija</h2>
 
     <div *ngIf="errorMsg" class="alert alert-error">{{ errorMsg }}</div>
     <div *ngIf="successMsg" class="alert alert-success">{{ successMsg }}</div>
@@ -44,8 +44,8 @@
       <label>Profilna slika</label>
       <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
         <input type="file" accept="image/*" (change)="onFileSelected($event)" style="max-width:250px">
-        <button type="button" class="btn btn-outline btn-sm" (click)="generateAvatar()">🎲 Generiši avatar</button>
-        <button type="button" class="btn btn-sm btn-outline" (click)="removeImage()">✕ Ukloni</button>
+        <button type="button" class="btn btn-outline btn-sm" (click)="generateAvatar()">Generisi avatar</button>
+        <button type="button" class="btn btn-sm btn-outline" (click)="removeImage()">Ukloni</button>
       </div>
       <img *ngIf="avatarPreview" [src]="avatarPreview" class="avatar-preview" style="margin-top:8px;width:100px;height:100px">
     </div>

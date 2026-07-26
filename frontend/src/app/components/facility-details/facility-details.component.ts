@@ -52,6 +52,7 @@ export class FacilityDetailsComponent implements OnInit {
     if (u) this.currentUserId = JSON.parse(u)._id || '';
   }
 
+  // leaflet mapa — inicijalizuje se sa malim delay-em zbog DOM-a
   initMap() {
     if (!this.facility?.location || this.map) return;
     const { latitude, longitude } = this.facility.location;
@@ -80,6 +81,7 @@ export class FacilityDetailsComponent implements OnInit {
     return r.user?._id === this.currentUserId || r.user === this.currentUserId;
   }
 
+  // grupise terene po sportu+tipu — koristi se za rotaciju strelicama
   getCourtGroups(): { sport: string; courts: any[] }[] {
     const map = new Map<string, any[]>();
     for (const c of this.courts) {

@@ -1,4 +1,4 @@
-/* ========== SPORTSHERE HUB - GLOBALNI STILOVI ========== */
+/* SportSphere Hub — globalni stilovi */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
@@ -26,7 +26,7 @@ body {
   min-height: 100vh;
 }
 
-/* ========== HEADER ========== */
+/* ---- header ---- */
 .app-header {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
   color: white;
@@ -79,7 +79,7 @@ body {
   font-weight: 500;
 }
 
-/* ========== FOOTER ========== */
+/* ---- footer ---- */
 .app-footer {
   background: var(--text);
   color: white;
@@ -89,11 +89,11 @@ body {
   font-size: 0.85rem;
 }
 
-/* ========== KONTEJNERI ========== */
+/* ---- kontejneri ---- */
 .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
 .container-sm { max-width: 500px; margin: 40px auto; padding: 0 16px; }
 
-/* ========== KARTICE ========== */
+/* ---- kartice ---- */
 .card {
   background: var(--card);
   border-radius: var(--radius);
@@ -103,7 +103,7 @@ body {
   border: 1px solid var(--border);
 }
 
-/* ========== FORME ========== */
+/* ---- forme ---- */
 .form-group { margin-bottom: 16px; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 4px; font-size: 0.9rem; }
 .form-group input, .form-group select, .form-group textarea {
@@ -124,7 +124,7 @@ body {
 .form-group .error { color: var(--danger); font-size: 0.8rem; margin-top: 4px; }
 .form-group select[multiple] { min-height: 120px; }
 
-/* ========== DUGMAD ========== */
+/* ---- dugmad ---- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -163,7 +163,7 @@ body {
 
 .btn-block { width: 100%; }
 
-/* ========== TABELE ========== */
+/* ---- tabele ---- */
 .table-wrapper { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
 table th, table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
@@ -172,7 +172,7 @@ table th:hover { background: #e2e8f0; }
 table tr:hover td { background: #f8fafc; }
 table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 
-/* ========== ALERTI ========== */
+/* ---- alerti ---- */
 .alert {
   padding: 12px 16px;
   border-radius: var(--radius);
@@ -183,7 +183,7 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 .alert-error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 .alert-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
 
-/* ========== STATS GRID ========== */
+/* ---- stats grid ---- */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -201,11 +201,11 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary); }
 .stat-card .stat-label { color: var(--text-light); font-size: 0.85rem; margin-top: 4px; }
 
-/* ========== GRID ========== */
+/* ---- grid ---- */
 .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
 .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
 
-/* ========== FACILITY CARD ========== */
+/* ---- facility card ---- */
 .facility-card {
   background: var(--card);
   border-radius: var(--radius);
@@ -222,7 +222,7 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 .facility-card .card-stats span { display: flex; align-items: center; gap: 4px; }
 .facility-card .card-actions { margin-top: 12px; }
 
-/* ========== KALENDAR (SPORTISTA) ========== */
+/* ---- kalendar (sportista) ---- */
 .calendar-nav {
   display: flex;
   align-items: center;
@@ -256,7 +256,7 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 .calendar-legend span { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
 .legend-box { width: 16px; height: 16px; border-radius: 3px; display: inline-block; }
 
-/* ========== KALENDAR (ZAPOSLENI - DRAG & DROP) ========== */
+/* ---- kalendar (zaposleni, drag&drop) ---- */
 .employee-calendar-controls {
   display: flex;
   align-items: center;
@@ -290,7 +290,7 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 .calendar-slot { min-height: 32px; border: 1px solid var(--border); }
 .calendar-slot.drag-over { border: 2px dashed var(--primary); background: #eff6ff; }
 
-/* ========== SHOP ========== */
+/* ---- shop ---- */
 .shop-item {
   background: var(--card);
   border-radius: var(--radius);
@@ -305,7 +305,7 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 .shop-item .stock { font-size: 0.85rem; color: var(--text-light); }
 .cart-total { font-size: 1.2rem; font-weight: 700; }
 
-/* ========== TABS ========== */
+/* ---- tabs ---- */
 .tabs { display: flex; gap: 4px; border-bottom: 2px solid var(--border); margin-bottom: 20px; flex-wrap: wrap; }
 .tabs button {
   padding: 10px 20px;
@@ -323,7 +323,7 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
 .tabs button.active { color: var(--primary); border-bottom-color: var(--primary); }
 .tabs button:hover { color: var(--primary); }
 
-/* ========== RESPONSIVE ========== */
+/* ---- responsive ---- */
 @media (max-width: 768px) {
   .app-header { padding: 10px 16px; }
   .app-header nav { width: 100%; justify-content: center; }
@@ -337,17 +337,17 @@ table th .sort-icon { margin-left: 4px; font-size: 0.7rem; }
   .calendar-grid th { min-width: 60px; }
 }
 
-/* ========== CHART WRAPPER ========== */
+/* ---- chart wrapper ---- */
 .chart-wrapper { max-width: 100%; margin: 16px 0; }
 .chart-wrapper canvas { max-height: 300px; }
 
-/* ========== AVATAR UPLOAD ========== */
+/* ---- avatar upload ---- */
 .avatar-section { display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .avatar-preview { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); }
 
-/* ========== COURT ROW ========== */
+/* ---- court row ---- */
 .court-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; padding: 12px; background: #f8fafc; border-radius: var(--radius); border: 1px solid var(--border); }
 
-/* ========== GALLERY ========== */
+/* ---- galerija ---- */
 .gallery img { transition: transform 0.2s; }
 .gallery img:hover { transform: scale(1.05); }

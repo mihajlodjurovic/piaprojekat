@@ -1,21 +1,14 @@
-/**
- * ============================================
- *  SEED SKRIPTA - SportSphere Hub (BOGATA)
- * ============================================
- * 
- * Pokretanje:  npm run seed   (ili: node seed.js)
- * 
- * ⚠️  ADMIN:    admin / Admin123!
- * 📋  Svi useri: Admin123!
- * ============================================
- */
+// seed skripta — puni bazu demo podacima
+// pokretanje: npm run seed (ili node seed.js)
+// ADMIN: admin / Admin123!
+// svi useri: Admin123!
 
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const MONGODB_URI = 'mongodb://localhost:27017/sportsphere_hub';
 const DEMO_PASSWORD = 'Admin123!';
 
-// Helper: vraca Date za N dana od danas (pozitivno = buducnost, negativno = proslost)
+// pomocna — vraca datum N dana od danas
 function dateOffset(days) {
   const d = new Date();
   d.setDate(d.getDate() + days);
@@ -28,7 +21,7 @@ async function seed() {
   console.log('✅ Povezano na MongoDB - baza: sportsphere_hub\n');
   const db = mongoose.connection.db;
 
-  // Briši sve
+  // brisi sve postojece podatke
   const collections = await db.listCollections().toArray();
   for (const col of collections) {
     await db.collection(col.name).deleteMany({});
@@ -38,7 +31,7 @@ async function seed() {
   const hashedPassword = await bcrypt.hash(DEMO_PASSWORD, 10);
   console.log('🔐 Lozinka hešovana bcrypt-om\n');
 
-  // ==================== SPORTOVI ====================
+  // ---------- SPORTOVI ----------
   console.log('--- SPORTOVI ---');
   await db.collection('sports').insertMany([
     { name: 'Tenis', isActive: true },
@@ -54,7 +47,7 @@ async function seed() {
   ]);
   console.log('  ✅ 10 sportova');
 
-  // ==================== KORISNICI ====================
+  // ---------- KORISNICI ----------
   console.log('\n--- KORISNICI ---');
   const users = await db.collection('users').insertMany([
     {
@@ -105,7 +98,7 @@ async function seed() {
   const ath1Id = users.insertedIds[3], ath2Id = users.insertedIds[4], ath3Id = users.insertedIds[5];
   console.log(`  ✅ 6 korisnika`);
 
-  // ==================== OBJEKTI ====================
+  // ---------- OBJEKTI ----------
   console.log('\n--- OBJEKTI ---');
   const facilities = await db.collection('sport_facilities').insertMany([
     {
@@ -171,7 +164,7 @@ async function seed() {
   const f1c = fac1.courts, f2c = fac2.courts, f3c = fac3.courts;
   console.log(`  ✅ 3 objekta (BG: 9 terena, NS: 6, NI: 4)`);
 
-  // ==================== TRENERI ====================
+  // ---------- TRENERI ----------
   console.log('\n--- TRENERI ---');
   const trainers = await db.collection('trainers').insertMany([
     { firstName: 'Dejan', lastName: 'Dejanović', specialization: ['Tenis'], facility: fac1Id, pricePerHour: 2000, averageRating: 4.8, totalRatings: 25, isActive: true, createdAt: new Date(), updatedAt: new Date() },
@@ -185,7 +178,7 @@ async function seed() {
   const trIds = Object.values(trainers.insertedIds);
   console.log(`  ✅ 7 trenera`);
 
-  // ==================== OPREMA ====================
+  // ---------- OPREMA ----------
   console.log('\n--- OPREMA ---');
   const equipment = await db.collection('equipment').insertMany([
     { name: 'Teniski reket Pro', sport: 'Tenis', description: 'Profesionalni teniski reket', price: 8500, stock: 15, facility: fac1Id, image: 'default-equipment.jpg', isActive: true, createdAt: new Date(), updatedAt: new Date() },
@@ -206,7 +199,7 @@ async function seed() {
   const eqIds = Object.values(equipment.insertedIds);
   console.log(`  ✅ ${eqIds.length} artikala opreme`);
 
-  // ==================== PROMOCIJE ====================
+  // ---------- PROMOCIJE ----------
   console.log('\n--- PROMOCIJE ---');
   const today = new Date();
   await db.collection('promotions').insertMany([
@@ -219,12 +212,12 @@ async function seed() {
   ]);
   console.log('  ✅ 6 promocija (4 aktivne, 1 istekla, 1 buduća)');
 
-  // ╔══════════════════════════════════════════╗
-  // ║           REZERVACIJE (30)              ║
-  // ╚══════════════════════════════════════════╝
+  //
+  // ---------- REZERVACIJE ----------
+  //
   console.log('\n--- REZERVACIJE ---');
   const reservations = [
-    // === PROŠLE (confirmed + noshow) ===
+    // prosle (confirmed + noshow)
     { user: ath1Id, facility: fac1Id, courtId: f1c[0]._id, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(-14), startTime: '10:00', endTime: '11:00', status: 'active', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
     { user: ath1Id, facility: fac1Id, courtId: f1c[0]._id, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(-10), startTime: '10:00', endTime: '11:00', status: 'active', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
     { user: ath1Id, facility: fac1Id, courtId: f1c[3]._id, courtName: f1c[3].name, sport: 'Fudbal', date: dateOffset(-7), startTime: '16:00', endTime: '18:00', status: 'active', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
@@ -238,7 +231,7 @@ async function seed() {
     { user: ath3Id, facility: fac1Id, courtId: f1c[5]._id, courtName: f1c[5].name, sport: 'Stoni tenis', date: dateOffset(-7), startTime: '14:00', endTime: '16:00', status: 'active', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
     { user: ath3Id, facility: fac1Id, courtId: f1c[7]._id, courtName: f1c[7].name, sport: 'Teretana', date: dateOffset(-3), startTime: '07:00', endTime: '08:00', status: 'active', attendanceStatus: 'noshow', createdAt: new Date(), updatedAt: new Date() },
     { user: ath3Id, facility: fac3Id, courtId: f3c[3]._id, courtName: f3c[3].name, sport: 'Teretana', date: dateOffset(-8), startTime: '17:00', endTime: '19:00', status: 'active', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
-    // === Ova nedelja / bliska budućnost ===
+    // ova nedelja / bliska buducnost
     { user: ath1Id, facility: fac1Id, courtId: f1c[0]._id, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(0), startTime: '10:00', endTime: '11:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath1Id, facility: fac1Id, courtId: f1c[1]._id, courtName: f1c[1].name, sport: 'Tenis', date: dateOffset(1), startTime: '15:00', endTime: '16:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath1Id, facility: fac1Id, courtId: f1c[3]._id, courtName: f1c[3].name, sport: 'Fudbal', date: dateOffset(2), startTime: '16:00', endTime: '18:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
@@ -248,23 +241,23 @@ async function seed() {
     { user: ath3Id, facility: fac1Id, courtId: f1c[4]._id, courtName: f1c[4].name, sport: 'Košarka', date: dateOffset(1), startTime: '09:00', endTime: '11:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath3Id, facility: fac1Id, courtId: f1c[5]._id, courtName: f1c[5].name, sport: 'Stoni tenis', date: dateOffset(2), startTime: '14:00', endTime: '15:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath3Id, facility: fac3Id, courtId: f3c[2]._id, courtName: f3c[2].name, sport: 'Košarka', date: dateOffset(3), startTime: '18:00', endTime: '20:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
-    // === Dalja budućnost ===
+    // dalja buducnost
     { user: ath1Id, facility: fac1Id, courtId: f1c[0]._id, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(7), startTime: '10:00', endTime: '11:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath1Id, facility: fac1Id, courtId: f1c[2]._id, courtName: f1c[2].name, sport: 'Tenis', date: dateOffset(8), startTime: '16:00', endTime: '18:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath2Id, facility: fac2Id, courtId: f2c[2]._id, courtName: f2c[2].name, sport: 'Fudbal', date: dateOffset(7), startTime: '17:00', endTime: '19:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath2Id, facility: fac2Id, courtId: f2c[4]._id, courtName: f2c[4].name, sport: 'Badminton', date: dateOffset(10), startTime: '12:00', endTime: '14:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath3Id, facility: fac1Id, courtId: f1c[7]._id, courtName: f1c[7].name, sport: 'Teretana', date: dateOffset(7), startTime: '08:00', endTime: '10:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath3Id, facility: fac1Id, courtId: f1c[8]._id, courtName: f1c[8].name, sport: 'Rukomet', date: dateOffset(14), startTime: '18:00', endTime: '20:00', status: 'active', attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
-    // === Otkazane ===
+    // otkazane
     { user: ath1Id, facility: fac1Id, courtId: f1c[1]._id, courtName: f1c[1].name, sport: 'Tenis', date: dateOffset(2), startTime: '12:00', endTime: '13:00', status: 'cancelled', cancelledAt: new Date(), attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() },
     { user: ath2Id, facility: fac2Id, courtId: f2c[1]._id, courtName: f2c[1].name, sport: 'Tenis', date: dateOffset(3), startTime: '20:00', endTime: '21:00', status: 'cancelled', cancelledAt: new Date(), attendanceStatus: 'pending', createdAt: new Date(), updatedAt: new Date() }
   ];
   await db.collection('reservations').insertMany(reservations);
   console.log(`  ✅ ${reservations.length} rezervacija (13 prošle, 10 buduće, 3 ova nedelja, 4 danas/sutra, 2 otkazane)`);
 
-  // ╔══════════════════════════════════════════╗
+  //
   // ║           RECENZIJE (12)                ║
-  // ╚══════════════════════════════════════════╝
+  //
   console.log('\n--- RECENZIJE ---');
   await db.collection('reviews').insertMany([
     { user: ath1Id, facility: fac1Id, isLike: true, comment: 'Odlični tereni, profesionalno osoblje!', createdAt: new Date(), updatedAt: new Date() },
@@ -282,9 +275,9 @@ async function seed() {
   ]);
   console.log('  ✅ 12 recenzija');
 
-  // ╔══════════════════════════════════════════╗
+  //
   // ║           TRENINZI (10)                  ║
-  // ╚══════════════════════════════════════════╝
+  //
   console.log('\n--- TRENINZI ---');
   await db.collection('trainings').insertMany([
     { athlete: ath1Id, trainer: trIds[0], facility: fac1Id, courtId: f1c[0]._id || null, courtName: f1c[0].name, sport: 'Tenis', date: dateOffset(-10), startTime: '10:00', endTime: '11:00', price: 2000, status: 'completed', attendanceStatus: 'confirmed', createdAt: new Date(), updatedAt: new Date() },
@@ -303,9 +296,9 @@ async function seed() {
   ]);
   console.log('  ✅ 13 treninga (3 održana, 10 zakazana, 3 u tekućoj nedelji)');
 
-  // ╔══════════════════════════════════════════╗
+  //
   // ║           PORUDŽBINE (10)                ║
-  // ╚══════════════════════════════════════════╝
+  //
   console.log('\n--- PORUDŽBINE ---');
   await db.collection('orders').insertMany([
     { user: ath1Id, items: [{ equipment: eqIds[0], name: 'Teniski reket Pro', price: 8500, quantity: 1 }], totalPrice: 8500, facility: fac1Id, status: 'picked_up', createdAt: new Date(), updatedAt: new Date() },
@@ -321,9 +314,9 @@ async function seed() {
   ]);
   console.log('  ✅ 10 porudžbina (3 preuzete, 5 naručenih, 2 otkazane)');
 
-  // ╔══════════════════════════════════════════╗
+  //
   // ║           SAIGRAČI (6)                  ║
-  // ╚══════════════════════════════════════════╝
+  //
   console.log('\n--- SAIGRAČI ---');
   await db.collection('teammate_posts').insertMany([
     { author: ath3Id, sport: 'Košarka', city: 'Beograd', date: dateOffset(4), startTime: '18:00', endTime: '20:00', facility: fac1Id, missingPlayers: 3, description: 'Tražim 3 igrača za basket. Svi nivoi dobrodošli!', joinRequests: [{ user: ath1Id, status: 'approved' }, { user: ath2Id, status: 'pending' }], approvedPlayers: [ath1Id], isActive: true, isComplete: false, createdAt: new Date(), updatedAt: new Date() },
@@ -335,7 +328,7 @@ async function seed() {
   ]);
   console.log('  ✅ 6 oglasa (5 aktivnih, 1 kompletan)');
 
-  // ==================== KRAJ ====================
+  // ---------- KRAJ ----------
   console.log('\n══════════════════════════════════════════');
   console.log('  ✅ SEED USPJEŠNO ZAVRŠEN!');
   console.log('══════════════════════════════════════════\n');

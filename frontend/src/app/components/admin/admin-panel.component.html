@@ -1,5 +1,5 @@
 <header class="app-header">
-  <a routerLink="/" class="logo">🏟️ SportSphere Hub — Admin</a>
+  <a routerLink="/" class="logo">SportSphere Hub — Admin</a>
   <nav>
     <span class="user-info" *ngIf="user">🔧 {{ user.firstName }} {{ user.lastName }} (Admin)</span>
     <button (click)="setTab('users')">Korisnici</button>
@@ -17,33 +17,33 @@
 
   <!-- KORISNICI -->
   <div *ngIf="activeTab === 'users'">
-    <h2>👥 Upravljanje korisnicima</h2>
+    <h2>Upravljanje korisnicima</h2>
     <div class="table-wrapper"><table><thead><tr><th>Username</th><th>Ime</th><th>Email</th><th>Uloga</th><th>Status</th><th>Objekat</th><th>Akcije</th></tr></thead><tbody><tr *ngFor="let u of users"><td>{{ u.username }}</td><td>{{ u.firstName }} {{ u.lastName }}</td><td>{{ u.email }}</td><td>{{ u.role }}</td><td [ngStyle]="{'color': u.isActive ? 'var(--success)' : 'var(--danger)'}">{{ u.isActive ? 'Aktivan' : 'Deaktiviran' }}</td><td>{{ u.facilityName || '-' }}</td><td><button class="btn btn-danger btn-sm" (click)="toggleUser(u._id, u.isActive)">{{ u.isActive ? 'Deaktiviraj' : 'Aktiviraj' }}</button><button class="btn btn-outline btn-sm" style="margin-left:4px" (click)="deleteUser(u._id)">Obriši</button></td></tr></tbody></table></div>
   </div>
 
   <!-- ZAHTEVI -->
   <div *ngIf="activeTab === 'requests'">
-    <h2>📝 Zahtevi za registraciju</h2>
-    <div class="table-wrapper" *ngIf="regRequests.length > 0"><table><thead><tr><th>Username</th><th>Ime</th><th>Email</th><th>Uloga</th><th>Objekat</th><th>Datum</th><th>Akcije</th></tr></thead><tbody><tr *ngFor="let r of regRequests"><td>{{ r.username }}</td><td>{{ r.firstName }} {{ r.lastName }}</td><td>{{ r.email }}</td><td>{{ r.role }}</td><td>{{ r.facilityName || '-' }}</td><td>{{ r.createdAt | date:'dd.MM.' }}</td><td><button class="btn btn-success btn-sm" (click)="approveReject(r._id, 'approve')">✅ Odobri</button><button class="btn btn-danger btn-sm" style="margin-left:4px" (click)="approveReject(r._id, 'reject')">❌ Odbij</button></td></tr></tbody></table></div>
+    <h2>Zahtevi za registraciju</h2>
+    <div class="table-wrapper" *ngIf="regRequests.length > 0"><table><thead><tr><th>Username</th><th>Ime</th><th>Email</th><th>Uloga</th><th>Objekat</th><th>Datum</th><th>Akcije</th></tr></thead><tbody><tr *ngFor="let r of regRequests"><td>{{ r.username }}</td><td>{{ r.firstName }} {{ r.lastName }}</td><td>{{ r.email }}</td><td>{{ r.role }}</td><td>{{ r.facilityName || '-' }}</td><td>{{ r.createdAt | date:'dd.MM.' }}</td><td><button class="btn btn-success btn-sm" (click)="approveReject(r._id, 'approve')">Odobri</button><button class="btn btn-danger btn-sm" style="margin-left:4px" (click)="approveReject(r._id, 'reject')">Odbij</button></td></tr></tbody></table></div>
     <div class="card" *ngIf="regRequests.length === 0"><p style="color:var(--text-light)">Nema zahteva na čekanju.</p></div>
   </div>
 
   <!-- OBJEKTI -->
   <div *ngIf="activeTab === 'facilities'">
-    <h2>🏗️ Odobravanje objekata</h2>
-    <div class="table-wrapper" *ngIf="facRequests.length > 0"><table><thead><tr><th>Naziv</th><th>Grad</th><th>Kompanija</th><th>Datum</th><th>Akcije</th></tr></thead><tbody><tr *ngFor="let f of facRequests"><td>{{ f.name }}</td><td>{{ f.city }}</td><td>{{ f.companyName }}</td><td>{{ f.createdAt | date:'dd.MM.' }}</td><td><button class="btn btn-success btn-sm" (click)="approveFacility(f._id, 'approve')">✅ Odobri</button><button class="btn btn-danger btn-sm" style="margin-left:4px" (click)="approveFacility(f._id, 'reject')">❌ Odbij</button></td></tr></tbody></table></div>
+    <h2>Odobravanje objekata</h2>
+    <div class="table-wrapper" *ngIf="facRequests.length > 0"><table><thead><tr><th>Naziv</th><th>Grad</th><th>Kompanija</th><th>Datum</th><th>Akcije</th></tr></thead><tbody><tr *ngFor="let f of facRequests"><td>{{ f.name }}</td><td>{{ f.city }}</td><td>{{ f.companyName }}</td><td>{{ f.createdAt | date:'dd.MM.' }}</td><td><button class="btn btn-success btn-sm" (click)="approveFacility(f._id, 'approve')">Odobri</button><button class="btn btn-danger btn-sm" style="margin-left:4px" (click)="approveFacility(f._id, 'reject')">Odbij</button></td></tr></tbody></table></div>
     <div class="card" *ngIf="facRequests.length === 0"><p style="color:var(--text-light)">Nema objekata na čekanju.</p></div>
   </div>
 
   <!-- TRENERI -->
   <div *ngIf="activeTab === 'trainers'">
-    <h2>🏋️ Evidencija trenera</h2>
-    <div class="table-wrapper"><table><thead><tr><th>Ime</th><th>Specijalizacija</th><th>Objekat</th><th>Ocena</th><th>Status</th><th>Akcija</th></tr></thead><tbody><tr *ngFor="let t of trainers"><td>{{ t.firstName }} {{ t.lastName }}</td><td>{{ t.specialization?.join(', ') }}</td><td>{{ t.facility?.name }}</td><td>⭐ {{ t.averageRating }}</td><td [ngStyle]="{'color': t.isActive ? 'var(--success)' : 'var(--danger)'}">{{ t.isActive ? 'Aktivan' : 'Deaktiviran' }}</td><td><button class="btn btn-sm" [ngClass]="t.isActive ? 'btn-danger' : 'btn-success'" (click)="toggleTrainer(t._id)">{{ t.isActive ? 'Deaktiviraj' : 'Aktiviraj' }}</button></td></tr></tbody></table></div>
+    <h2>Evidencija trenera</h2>
+    <div class="table-wrapper"><table><thead><tr><th>Ime</th><th>Specijalizacija</th><th>Objekat</th><th>Ocena</th><th>Status</th><th>Akcija</th></tr></thead><tbody><tr *ngFor="let t of trainers"><td>{{ t.firstName }} {{ t.lastName }}</td><td>{{ t.specialization?.join(', ') }}</td><td>{{ t.facility?.name }}</td><td>Ocena: {{ t.averageRating }}</td><td [ngStyle]="{'color': t.isActive ? 'var(--success)' : 'var(--danger)'}">{{ t.isActive ? 'Aktivan' : 'Deaktiviran' }}</td><td><button class="btn btn-sm" [ngClass]="t.isActive ? 'btn-danger' : 'btn-success'" (click)="toggleTrainer(t._id)">{{ t.isActive ? 'Deaktiviraj' : 'Aktiviraj' }}</button></td></tr></tbody></table></div>
   </div>
 
   <!-- SPORTOVI -->
   <div *ngIf="activeTab === 'sports'">
-    <h2>⚽ Vrste sportova</h2>
+    <h2>Vrste sportova</h2>
     <div class="card"><div style="display:flex;gap:8px;align-items:flex-end"><div class="form-group" style="flex:1"><label>Naziv novog sporta</label><input [(ngModel)]="newSport" placeholder="npr. Vaterpolo"></div><button class="btn btn-success" (click)="addSport()">Dodaj sport</button></div></div>
     <div style="margin-top:12px"><span *ngFor="let s of sports" style="display:inline-block;background:var(--bg);padding:6px 12px;border-radius:8px;margin:4px;border:1px solid var(--border)">{{ s.name }} <span [ngStyle]="{'color': s.isActive ? 'var(--success)' : 'var(--danger)'}">{{ s.isActive ? '✓' : '✕' }}</span></span></div>
   </div>
