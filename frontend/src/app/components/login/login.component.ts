@@ -39,7 +39,7 @@ export class LoginComponent {
         this.loading = false;
         if (res.role === 'athlete') this.router.navigate(['/athlete']);
         else if (res.role === 'employee') this.router.navigate(['/employee']);
-        else if (res.role === 'admin') this.router.navigate(['/system-admin-2025']);
+        else if (res.role === 'admin') this.router.navigate(['/system-admin-2026']);
       },
       error: (err: any) => {
         this.loading = false;

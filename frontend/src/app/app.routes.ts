@@ -16,6 +16,6 @@ export const routes: Routes = [
   { path: 'facility/:id', component: FacilityDetailsComponent },
   { path: 'athlete', component: AthletePanelComponent },
   { path: 'employee', component: EmployeePanelComponent },
-  { path: 'system-admin-2025', component: AdminPanelComponent }, // skrivena admin ruta
+  { path: 'system-admin-2026', component: AdminPanelComponent }, // skrivena admin ruta
   { path: '**', redirectTo: '' }
 ];
