@@ -1,4 +1,7 @@
 node_modules/
 dist/
-uploads/
+uploads/*
+!uploads/.gitkeep
+!uploads/*.jpg
+!uploads/*.png
 *.log
