@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-facility-details',
@@ -16,8 +17,12 @@ export class FacilityDetailsComponent implements OnInit {
   facility: any = null;
   courts: any[] = [];
   reviews: any[] = [];
+  currentUserId = '';
+  map: any = null;
 
   selectedCourt: any = null;
+  courtGroup: any[] = [];
+  courtGroupIdx = 0;
   weekStart = new Date();
   weekEnd = new Date();
   weekDays: { label: string; dateStr: string; date: Date }[] = [];
@@ -35,6 +40,21 @@ export class FacilityDetailsComponent implements OnInit {
     this.facilityId = this.route.snapshot.paramMap.get('id')!;
     this.setWeek(new Date());
     this.loadFacility();
+    const u = localStorage.getItem('user');
+    if (u) this.currentUserId = JSON.parse(u)._id || '';
+  }
+
+  initMap() {
+    if (!this.facility?.location || this.map) return;
+    const { latitude, longitude } = this.facility.location;
+    setTimeout(() => {
+      this.map = L.map('facility-map').setView([latitude, longitude], 14);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap'
+      }).addTo(this.map);
+      L.marker([latitude, longitude]).addTo(this.map)
+        .bindPopup(this.facility.name).openPopup();
+    }, 300);
   }
 
   loadFacility() {
@@ -43,15 +63,58 @@ export class FacilityDetailsComponent implements OnInit {
         this.facility = res.facility;
         this.courts = res.courts;
         this.reviews = res.reviews;
+        this.initMap();
       }
+    });
+  }
+
+  isOwnReview(r: any): boolean {
+    return r.user?._id === this.currentUserId || r.user === this.currentUserId;
+  }
+
+  getCourtGroups(): { sport: string; courts: any[] }[] {
+    const map = new Map<string, any[]>();
+    for (const c of this.courts) {
+      const key = c.sport + '|' + c.type;
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(c);
+    }
+    return Array.from(map.entries()).map(([key, courts]) => {
+      const [sport, type] = key.split('|');
+      return { sport, type, courts };
     });
   }
 
   selectCourt(court: any) {
     this.selectedCourt = court;
+    this.courtGroup = [court];
+    this.courtGroupIdx = 0;
+    // Pronađi grupu istog tipa za rotaciju
+    for (const g of this.getCourtGroups()) {
+      const idx = g.courts.findIndex((c: any) => c._id === court._id);
+      if (idx !== -1) { this.courtGroup = g.courts; this.courtGroupIdx = idx; break; }
+    }
     this.selectedSlot = null;
     this.reservationMsg = '';
     this.loadSchedule(court.name);
+  }
+
+  prevCourt() {
+    if (this.courtGroup.length <= 1) return;
+    this.courtGroupIdx = (this.courtGroupIdx - 1 + this.courtGroup.length) % this.courtGroup.length;
+    this.selectedCourt = this.courtGroup[this.courtGroupIdx];
+    this.selectedSlot = null;
+    this.reservationMsg = '';
+    this.loadSchedule(this.selectedCourt.name);
+  }
+
+  nextCourt() {
+    if (this.courtGroup.length <= 1) return;
+    this.courtGroupIdx = (this.courtGroupIdx + 1) % this.courtGroup.length;
+    this.selectedCourt = this.courtGroup[this.courtGroupIdx];
+    this.selectedSlot = null;
+    this.reservationMsg = '';
+    this.loadSchedule(this.selectedCourt.name);
   }
 
   loadSchedule(courtName: string) {

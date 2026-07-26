@@ -84,6 +84,9 @@
         <div class="form-group"><label>Tip</label><select [(ngModel)]="rType"><option value="">Svi</option><option value="outdoor">Otvoreni</option><option value="indoor">Zatvoreni</option></select></div>
       </div>
       <button class="btn btn-primary" (click)="searchFacilities()">🔍 Pretraži</button>
+      <label style="margin-left:12px;display:inline-flex;align-items:center;gap:6px;cursor:pointer">
+        <input type="checkbox" [(ngModel)]="rFreeToday"> Samo slobodni termini danas
+      </label>
     </div>
     <div *ngIf="searchResults" style="margin-top:12px">
       <div *ngFor="let f of searchResults" class="card">
@@ -231,15 +234,11 @@
     </div>
     <div class="card" *ngIf="statBySport.length > 0">
       <h4>Rezervacije po sportu</h4>
-      <div *ngFor="let s of statBySport" style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
-        <span>{{ s._id }}</span><strong>{{ s.count }}</strong>
-      </div>
+      <canvas id="barChart" style="max-height:300px"></canvas>
     </div>
     <div class="card" *ngIf="statMonthly.length > 0" style="margin-top:12px">
       <h4>Mesečna aktivnost</h4>
-      <div *ngFor="let m of statMonthly" style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border)">
-        <span>{{ m._id }}</span><strong>{{ m.count }}</strong>
-      </div>
+      <canvas id="lineChart" style="max-height:300px"></canvas>
     </div>
   </div>
 </div>

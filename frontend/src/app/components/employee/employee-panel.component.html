@@ -45,23 +45,28 @@
     <h2>🏗️ Upravljanje objektima</h2>
     <div class="card">
       <h4>Dodaj novi objekat</h4>
-      <div class="grid-2">
+      <div class="grid-3">
         <div class="form-group"><label>Naziv</label><input [(ngModel)]="newFac.name"></div>
         <div class="form-group"><label>Grad</label><input [(ngModel)]="newFac.city"></div>
         <div class="form-group"><label>Adresa</label><input [(ngModel)]="newFac.address"></div>
         <div class="form-group"><label>Opis</label><textarea [(ngModel)]="newFac.description" rows="2"></textarea></div>
         <div class="form-group"><label>Cena po satu</label><input type="number" [(ngModel)]="newFac.pricePerHour"></div>
         <div class="form-group"><label>Max nedolazaka</label><input type="number" [(ngModel)]="newFac.maxNoShows" min="1"></div>
+        <div class="form-group"><label>Radno vreme (od)</label><input type="time" [(ngModel)]="newFac.workingHours.open"></div>
+        <div class="form-group"><label>Radno vreme (do)</label><input type="time" [(ngModel)]="newFac.workingHours.close"></div>
       </div>
       <h5 style="margin-top:12px">Dodaj terene/hale</h5>
-      <div *ngFor="let c of newFac.courts; let i = index" style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
+      <div *ngFor="let c of newFac.courts; let i = index" class="court-row">
         <div class="form-group" style="flex:1;min-width:100px"><label>Naziv</label><input [(ngModel)]="c.name"></div>
         <div class="form-group" style="flex:1;min-width:100px"><label>Tip</label><select [(ngModel)]="c.type"><option value="outdoor">Otvoreni</option><option value="indoor">Zatvoreni</option><option value="arena">Dvorana</option></select></div>
         <div class="form-group" style="flex:1;min-width:100px"><label>Sport</label><input [(ngModel)]="c.sport"></div>
         <div class="form-group" style="flex:1"><label>Cena/h</label><input type="number" [(ngModel)]="c.pricePerHour"></div>
+        <div class="form-group" style="width:100%;margin-top:4px"><label>Kapacitet</label><input type="number" [(ngModel)]="c.capacity" min="1"></div>
+        <div class="form-group" style="width:100%"><label>Broj mesta</label><input type="number" [(ngModel)]="c.spotsCount" min="4"></div>
+        <div class="form-group" style="width:100%"><label>Opis opreme (max 300 kar.)</label><textarea [(ngModel)]="c.equipmentDescription" rows="1" maxlength="300"></textarea></div>
         <button class="btn btn-danger btn-sm" (click)="newFac.courts.splice(i,1)">✕</button>
       </div>
-      <button class="btn btn-outline btn-sm" (click)="newFac.courts.push({name:'',type:'outdoor',sport:'',pricePerHour:0})">+ Dodaj teren</button>
+      <button class="btn btn-outline btn-sm" (click)="newFac.courts.push({name:'',type:'outdoor',sport:'',pricePerHour:0,capacity:1,spotsCount:4,equipmentDescription:''})">+ Dodaj teren</button>
       <div style="margin-top:8px"><button class="btn btn-success" (click)="createFacility()">🏗️ Kreiraj objekat</button></div>
     </div>
     <div class="card" style="margin-top:12px"><h4>Ili uvezi objekat preko JSON fajla</h4><input type="file" accept=".json" (change)="onJsonFileSelected($event)"></div>
@@ -97,15 +102,16 @@
   <!-- PROMOCIJE -->
   <div *ngIf="activeTab === 'promotions'">
     <h2>🎉 Promocije</h2>
-    <div class="card"><h4>Dodaj promociju</h4><div class="grid-2"><div class="form-group"><label>Naziv</label><input [(ngModel)]="promoForm.name"></div><div class="form-group"><label>Objekat</label><select [(ngModel)]="promoForm.facilityId"><option *ngFor="let f of facilities" [value]="f._id">{{ f.name }}</option></select></div><div class="form-group"><label>Sport</label><input [(ngModel)]="promoForm.sport"></div><div class="form-group"><label>Tip</label><select [(ngModel)]="promoForm.discountType"><option value="percentage">Procenat</option><option value="fixed">Fiksno</option></select></div><div class="form-group"><label>Vrednost</label><input type="number" [(ngModel)]="promoForm.discountValue"></div><div class="form-group"><label>Početak</label><input type="date" [(ngModel)]="promoForm.startDate"></div><div class="form-group"><label>Kraj</label><input type="date" [(ngModel)]="promoForm.endDate"></div></div><button class="btn btn-success" (click)="createPromotion()">🎉 Kreiraj promociju</button></div>
+    <div class="card"><h4>{{ promoEdit ? 'Ažuriraj promociju: ' + promoEdit.name : 'Dodaj promociju' }}</h4><div class="grid-2"><div class="form-group"><label>Naziv</label><input [(ngModel)]="promoForm.name"></div><div class="form-group"><label>Objekat</label><select [(ngModel)]="promoForm.facilityId"><option *ngFor="let f of facilities" [value]="f._id">{{ f.name }}</option></select></div><div class="form-group"><label>Sport</label><input [(ngModel)]="promoForm.sport"></div><div class="form-group"><label>Tip</label><select [(ngModel)]="promoForm.discountType"><option value="percentage">Procenat</option><option value="fixed">Fiksno</option></select></div><div class="form-group"><label>Vrednost</label><input type="number" [(ngModel)]="promoForm.discountValue"></div><div class="form-group"><label>Početak</label><input type="date" [(ngModel)]="promoForm.startDate"></div><div class="form-group"><label>Kraj</label><input type="date" [(ngModel)]="promoForm.endDate"></div></div>      <button class="btn btn-success" (click)="createPromotion()">{{ promoEdit ? 'Ažuriraj' : '🎉 Kreiraj promociju' }}</button>
+      <button *ngIf="promoEdit" class="btn btn-outline btn-sm" style="margin-left:8px" (click)="cancelEditPromo()">Otkaži</button></div>
     <h4>Aktivne promocije</h4>
-    <div *ngFor="let p of promotions" class="card"><strong>{{ p.name }}</strong> — {{ p.facility?.name }}<p>{{ p.discountType==='percentage'?p.discountValue+'%':p.discountValue+' RSD' }}</p></div>
+    <div *ngFor="let p of promotions" class="card"><strong>{{ p.name }}</strong> — {{ p.facility?.name }}<p>{{ p.discountType==='percentage'?p.discountValue+'%':p.discountValue+' RSD' }} | {{ p.startDate|date:'dd.MM.' }}–{{ p.endDate|date:'dd.MM.yyyy.' }}</p><button class="btn btn-outline btn-sm" (click)="editPromotion(p)">✏️ Izmeni</button></div>
   </div>
 
   <!-- OPREMA -->
   <div *ngIf="activeTab === 'equipment'">
     <h2>🛒 Oprema i narudžbine</h2>
-    <div class="card"><h4>Dodaj opremu</h4><div class="grid-2"><div class="form-group"><label>Naziv</label><input [(ngModel)]="eqForm.name"></div><div class="form-group"><label>Sport</label><input [(ngModel)]="eqForm.sport"></div><div class="form-group"><label>Cena</label><input type="number" [(ngModel)]="eqForm.price"></div><div class="form-group"><label>Zaliha</label><input type="number" [(ngModel)]="eqForm.stock"></div><div class="form-group"><label>Objekat</label><select [(ngModel)]="eqForm.facility"><option *ngFor="let f of facilities" [value]="f._id">{{ f.name }}</option></select></div></div><button class="btn btn-success" (click)="createEquipment()">Dodaj</button></div>
+    <div class="card">      <h4>Dodaj opremu</h4><div class="grid-2"><div class="form-group"><label>Naziv</label><input [(ngModel)]="eqForm.name"></div><div class="form-group"><label>Sport</label><input [(ngModel)]="eqForm.sport"></div><div class="form-group"><label>Opis</label><input [(ngModel)]="eqForm.description"></div><div class="form-group"><label>Cena</label><input type="number" [(ngModel)]="eqForm.price"></div><div class="form-group"><label>Zaliha</label><input type="number" [(ngModel)]="eqForm.stock"></div><div class="form-group"><label>Objekat</label><select [(ngModel)]="eqForm.facility"><option *ngFor="let f of facilities" [value]="f._id">{{ f.name }}</option></select></div></div><button class="btn btn-success" (click)="createEquipment()">Dodaj</button></div>
     <h4>Katalog opreme</h4>
     <div class="table-wrapper"><table><thead><tr><th>Naziv</th><th>Sport</th><th>Cena</th><th>Zaliha</th><th>Akcija</th></tr></thead><tbody><tr *ngFor="let eq of empEquipment"><td>{{ eq.name }}</td><td>{{ eq.sport }}</td><td>{{ eq.price }}</td><td>{{ eq.stock }}</td><td><input type="number" [(ngModel)]="eqUpdate[eq._id+'_price']" [placeholder]="eq.price" style="width:70px"><input type="number" [(ngModel)]="eqUpdate[eq._id+'_stock']" [placeholder]="eq.stock" style="width:70px"><button class="btn btn-primary btn-sm" (click)="updateEquipment(eq._id, eqUpdate[eq._id+'_price'], eqUpdate[eq._id+'_stock'])">Ažuriraj</button></td></tr></tbody></table></div>
     <h4>Narudžbine</h4>

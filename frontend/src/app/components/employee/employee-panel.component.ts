@@ -26,9 +26,10 @@ export class EmployeePanelComponent implements OnInit {
   empOrders: any[] = [];
   eqUpdate: any = {};
 
-  newFac: any = { name: '', city: '', address: '', description: '', pricePerHour: 0, maxNoShows: 3, courts: [] };
+  newFac: any = { name: '', city: '', address: '', description: '', pricePerHour: 0, maxNoShows: 3, workingHours: { open: '08:00', close: '22:00' }, courts: [] };
   promoForm: any = { name: '', facilityId: '', sport: '', discountType: 'percentage', discountValue: 0, startDate: '', endDate: '', description: '' };
-  eqForm: any = { name: '', sport: '', price: 0, stock: 0, facility: '' };
+  promoEdit: any = null;
+  eqForm: any = { name: '', sport: '', description: '', price: 0, stock: 0, facility: '' };
 
   calFacilityId = ''; calCourtId = '';
   calCourts: any[] = [];
@@ -105,8 +106,14 @@ export class EmployeePanelComponent implements OnInit {
     if (!this.newFac.name?.trim() || !this.newFac.city?.trim() || !this.newFac.address?.trim() || !this.newFac.description?.trim()) {
       this.err = 'Naziv, grad, adresa i opis su obavezni.'; return;
     }
+    // Validacija dužine opisa opreme za terene
+    for (const c of this.newFac.courts) {
+      if (c.equipmentDescription && c.equipmentDescription.length > 300) {
+        this.err = `Opis opreme za "${c.name}" prelazi 300 karaktera.`; return;
+      }
+    }
     this.api.createFacility(this.newFac).subscribe({
-      next: () => { this.msg = 'Objekat kreiran (čeka odobrenje)'; this.newFac = { name: '', city: '', address: '', description: '', pricePerHour: 0, maxNoShows: 3, courts: [] }; this.loadAll(); },
+      next: () => { this.msg = 'Objekat kreiran (čeka odobrenje)'; this.newFac = { name: '', city: '', address: '', description: '', pricePerHour: 0, maxNoShows: 3, workingHours: { open: '08:00', close: '22:00' }, courts: [] }; this.loadAll(); },
       error: (err) => this.err = err.error?.message
     });
   }
@@ -160,10 +167,33 @@ export class EmployeePanelComponent implements OnInit {
     if (!this.promoForm.name?.trim() || !this.promoForm.facilityId || !this.promoForm.sport?.trim() || !this.promoForm.startDate || !this.promoForm.endDate || this.promoForm.discountValue <= 0) {
       this.err = 'Sva polja su obavezna.'; return;
     }
-    this.api.createPromotion(this.promoForm).subscribe({
-      next: () => { this.msg = 'Promocija kreirana'; this.loadPromotions(); },
-      error: (err) => this.err = err.error?.message
-    });
+    if (this.promoEdit) {
+      this.api.updatePromotion(this.promoEdit._id, this.promoForm).subscribe({
+        next: () => { this.msg = 'Promocija ažurirana'; this.promoEdit = null; this.loadPromotions(); },
+        error: (err) => this.err = err.error?.message
+      });
+    } else {
+      this.api.createPromotion(this.promoForm).subscribe({
+        next: () => { this.msg = 'Promocija kreirana'; this.loadPromotions(); },
+        error: (err) => this.err = err.error?.message
+      });
+    }
+  }
+
+  editPromotion(p: any) {
+    this.promoEdit = p;
+    this.promoForm = {
+      name: p.name, facilityId: p.facility?._id || p.facility,
+      sport: p.sport, discountType: p.discountType, discountValue: p.discountValue,
+      startDate: new Date(p.startDate).toISOString().split('T')[0],
+      endDate: new Date(p.endDate).toISOString().split('T')[0],
+      description: p.description || ''
+    };
+  }
+
+  cancelEditPromo() {
+    this.promoEdit = null;
+    this.promoForm = { name: '', facilityId: '', sport: '', discountType: 'percentage', discountValue: 0, startDate: '', endDate: '', description: '' };
   }
 
   loadEquipment() {
@@ -281,20 +311,32 @@ export class EmployeePanelComponent implements OnInit {
   }
 
   downloadOccupancyReport() {
+    if (!this.reportFacilityId) { this.err = 'Izaberite objekat'; return; }
     this.api.getOccupancyReport(this.reportFacilityId, this.reportMonth, this.reportYear).subscribe({
-      next: (html: string) => {
-        const w = window.open('', '_blank')!;
-        w.document.write(html); w.document.close();
-      }
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `popunjenost-${this.reportMonth}-${this.reportYear}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.err = 'Greška pri generisanju izveštaja'
     });
   }
 
   downloadEquipmentReport() {
+    if (!this.reportFacilityId) { this.err = 'Izaberite objekat'; return; }
     this.api.getEquipmentReport(this.reportFacilityId, this.reportMonth, this.reportYear).subscribe({
-      next: (html: string) => {
-        const w = window.open('', '_blank')!;
-        w.document.write(html); w.document.close();
-      }
+      next: (blob: Blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `promet-opreme-${this.reportMonth}-${this.reportYear}.pdf`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => this.err = 'Greška pri generisanju izveštaja'
     });
   }
 

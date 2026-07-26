@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 const bcrypt = require('bcryptjs');
+const PDFDocument = require('pdfkit');
 import UserModel from './models/user';
 import SportFacilityModel from './models/sportFacility';
 import ReservationModel from './models/reservation';
@@ -69,6 +70,10 @@ export class Controller {
 
         if (!/^[1-9]\d{8}$/.test(pib))
           return res.json({ message: 'PIB mora imati tačno 9 cifara i ne sme počinjati nulom' });
+
+        const existingRegNum = await UserModel.findOne({ registrationNumber, role: 'employee' });
+        if (existingRegNum)
+          return res.json({ message: 'Matični broj već postoji' });
 
         const count = await UserModel.countDocuments({
           role: 'employee', facilityName, approvalStatus: 'approved'
@@ -176,15 +181,53 @@ export class Controller {
 
   facilitiesSearch = async (req: Request, res: Response) => {
     try {
-      const { name, city, sport, courtType } = req.query;
+      const { name, city, sport, courtType, onlyFreeToday } = req.query;
       const filter: any = { isActive: true, approvalStatus: 'approved' };
       if (name) filter.name = { $regex: name, $options: 'i' };
       if (city) filter.city = { $in: (city as string).split(',').map(c => c.trim()) };
       if (sport) filter['courts.sport'] = { $regex: sport, $options: 'i' };
       if (courtType) filter['courts.type'] = courtType;
 
-      const facilities = await SportFacilityModel.find(filter)
+      let facilities = await SportFacilityModel.find(filter)
         .select('name city address mainImage likes dislikes courts').sort({ likes: -1 });
+
+      // Filter "samo slobodni termini danas"
+      if (onlyFreeToday === 'true') {
+        const today = new Date();
+        const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const todayEnd = new Date(todayStart);
+        todayEnd.setDate(todayEnd.getDate() + 1);
+        const currentHour = today.getHours();
+
+        const freeFacilities: any[] = [];
+        for (const fac of facilities) {
+          const reservations = await ReservationModel.find({
+            facility: fac._id,
+            date: { $gte: todayStart, $lt: todayEnd },
+            status: 'active'
+          });
+
+          const courts = fac.courts.filter((c: any) => c.isActive);
+          let hasFreeSlot = false;
+
+          for (const court of courts) {
+            let firstFreeHour = -1;
+            for (let hour = Math.max(8, currentHour + 1); hour < 22; hour++) {
+              const slotStart = `${String(hour).padStart(2, '0')}:00`;
+              const slotEnd = `${String(hour + 1).padStart(2, '0')}:00`;
+              const taken = reservations.some((r: any) =>
+                r.courtId?.toString() === court._id.toString() &&
+                r.startTime < slotEnd && r.endTime > slotStart
+              );
+              if (!taken) { firstFreeHour = hour; break; }
+            }
+            if (firstFreeHour !== -1) { hasFreeSlot = true; break; }
+          }
+          if (hasFreeSlot) freeFacilities.push(fac);
+        }
+        facilities = freeFacilities;
+      }
+
       res.json({ facilities, count: facilities.length });
     } catch (err: any) {
       res.json({ message: err.message });
@@ -984,8 +1027,9 @@ export class Controller {
   occupancyReport = async (req: Request, res: Response) => {
     try {
       const { month, year } = req.query;
-      const startDate = new Date(Number(year), Number(month) - 1, 1);
-      const endDate = new Date(Number(year), Number(month), 0);
+      const m = Number(month), y = Number(year);
+      const startDate = new Date(y, m - 1, 1);
+      const endDate = new Date(y, m, 0);
 
       const facility = await SportFacilityModel.findById(req.params.facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
@@ -996,24 +1040,33 @@ export class Controller {
         status: { $ne: 'cancelled' }
       });
 
-      let html = `<h1>Izveštaj o popunjenosti - ${facility.name}</h1>`;
-      html += `<p>Period: ${month}/${year}</p><ul>`;
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="popunjenost-${facility.name}-${m}-${y}.pdf"`);
+      doc.pipe(res);
+
+      doc.fontSize(18).text(`Izveštaj o popunjenosti`, { align: 'center' });
+      doc.fontSize(14).text(`${facility.name}`, { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(11).text(`Period: ${m}/${y}`, { align: 'center' });
+      doc.moveDown(2);
 
       for (const court of facility.courts) {
         const courtRes = reservations.filter(
-          (r: any) => r.courtId && r.courtId.toString() === court._id.toString()
+          (r: any) => r.courtName === court.name
         );
         const totalHours = courtRes.length;
-        const totalWorkingDays = 30;
-        const totalWorkingHours = totalWorkingDays * 14;
+        const daysInMonth = new Date(y, m, 0).getDate();
+        const totalWorkingHours = daysInMonth * 14;
         const occupancy = totalWorkingHours > 0
           ? ((totalHours / totalWorkingHours) * 100).toFixed(1) : '0';
-        html += `<li>${court.name} (${court.sport}): ${totalHours} rezervacija - ${occupancy}% popunjenosti</li>`;
-      }
-      html += '</ul>';
 
-      res.setHeader('Content-Type', 'text/html');
-      res.send(html);
+        doc.fontSize(12).text(`${court.name} (${court.sport})`);
+        doc.fontSize(10).text(`  ${totalHours} rezervacija — ${occupancy}% popunjenosti`);
+        doc.moveDown(0.5);
+      }
+
+      doc.end();
     } catch (err: any) {
       res.json({ message: err.message });
     }
@@ -1022,8 +1075,9 @@ export class Controller {
   equipmentReport = async (req: Request, res: Response) => {
     try {
       const { month, year } = req.query;
-      const startDate = new Date(Number(year), Number(month) - 1, 1);
-      const endDate = new Date(Number(year), Number(month), 0);
+      const m = Number(month), y = Number(year);
+      const startDate = new Date(y, m - 1, 1);
+      const endDate = new Date(y, m, 0);
 
       const facility = await SportFacilityModel.findById(req.params.facilityId);
       if (!facility) return res.json({ message: 'Objekat nije pronađen' });
@@ -1034,18 +1088,27 @@ export class Controller {
         status: { $ne: 'cancelled' }
       });
 
-      let html = `<h1>Izveštaj o prometu opreme - ${facility.name}</h1>`;
-      html += `<p>Period: ${month}/${year}</p><ul>`;
-      let totalRevenue = 0;
+      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="promet-opreme-${facility.name}-${m}-${y}.pdf"`);
+      doc.pipe(res);
 
+      doc.fontSize(18).text(`Izveštaj o prometu opreme`, { align: 'center' });
+      doc.fontSize(14).text(`${facility.name}`, { align: 'center' });
+      doc.moveDown();
+      doc.fontSize(11).text(`Period: ${m}/${y}`, { align: 'center' });
+      doc.moveDown(2);
+
+      let totalRevenue = 0;
       for (const order of orders) {
-        html += `<li>Porudžbina - ${order.totalPrice} RSD</li>`;
+        doc.fontSize(10).text(`Porudžbina #${order._id.toString().slice(-6)} — ${order.totalPrice} RSD`);
         totalRevenue += order.totalPrice;
       }
-      html += `</ul><p><b>Ukupan promet: ${totalRevenue} RSD</b></p>`;
 
-      res.setHeader('Content-Type', 'text/html');
-      res.send(html);
+      doc.moveDown();
+      doc.font('Helvetica-Bold').fontSize(12).text(`Ukupan promet: ${totalRevenue} RSD`);
+
+      doc.end();
     } catch (err: any) {
       res.json({ message: err.message });
     }

@@ -49,6 +49,10 @@ export class ApiService {
     return this.http.get<any>(`${this.uri}/facilities/search`, { params });
   }
 
+  searchFacilitiesFreeToday(params: any) {
+    return this.http.get<any>(`${this.uri}/facilities/search`, { params: { ...params, onlyFreeToday: 'true' } });
+  }
+
   getFacilityDetails(id: string) {
     return this.http.get<any>(`${this.uri}/facilities/${id}`);
   }
@@ -226,12 +230,12 @@ export class ApiService {
 
   getOccupancyReport(facilityId: string, month: number, year: number) {
     return this.http.get(`${this.uri}/employee/reports/occupancy/${facilityId}`,
-      { params: { month, year }, responseType: 'text' });
+      { params: { month, year }, responseType: 'blob' });
   }
 
   getEquipmentReport(facilityId: string, month: number, year: number) {
     return this.http.get(`${this.uri}/employee/reports/equipment/${facilityId}`,
-      { params: { month, year }, responseType: 'text' });
+      { params: { month, year }, responseType: 'blob' });
   }
 
   // ==================== ADMIN ====================

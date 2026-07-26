@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-athlete-panel',
@@ -24,6 +26,7 @@ export class AthletePanelComponent implements OnInit {
   sortResField = ''; sortResDir = 1;
 
   rName = ''; rCity = ''; rSport = ''; rType = '';
+  rFreeToday = false;
   searchResults: any[] | null = null;
 
   teammatePosts: any[] = [];
@@ -69,7 +72,8 @@ export class AthletePanelComponent implements OnInit {
 
   logout() { localStorage.clear(); this.router.navigate(['/']); }
 
-  setTab(tab: string) { this.activeTab = tab; this.msg = ''; this.err = ''; this.tMsg = ''; this.tErr = ''; this.trnMsg = ''; this.trnErr = ''; this.cartMsg = ''; this.cartErr = ''; this.revMsg = ''; this.revErr = ''; }
+  setTab(tab: string) { this.activeTab = tab; this.msg = ''; this.err = ''; this.tMsg = ''; this.tErr = ''; this.trnMsg = ''; this.trnErr = ''; this.cartMsg = ''; this.cartErr = ''; this.revMsg = ''; this.revErr = '';
+    if (tab === 'stats') setTimeout(() => this.renderCharts(), 100); }
 
   loadProfile() {
     this.api.getAthleteProfile().subscribe({
@@ -142,7 +146,10 @@ export class AthletePanelComponent implements OnInit {
     if (this.rCity) params.city = this.rCity;
     if (this.rSport) params.sport = this.rSport;
     if (this.rType) params.courtType = this.rType;
-    this.api.searchFacilities(params).subscribe({
+    const apiCall = this.rFreeToday
+      ? this.api.searchFacilitiesFreeToday(params)
+      : this.api.searchFacilities(params);
+    apiCall.subscribe({
       next: (res: any) => this.searchResults = res.facilities
     });
   }
@@ -264,7 +271,52 @@ export class AthletePanelComponent implements OnInit {
         this.athleteStats.totalSpending = res.statistics.totalSpending;
         this.statBySport = res.statistics.reservationsBySport || [];
         this.statMonthly = res.statistics.monthlyActivity || [];
+        setTimeout(() => this.renderCharts(), 200);
       }
+    });
+  }
+
+  renderCharts() {
+    this.renderBarChart();
+    this.renderLineChart();
+  }
+
+  renderBarChart() {
+    const canvas = document.getElementById('barChart') as HTMLCanvasElement;
+    if (!canvas || this.statBySport.length === 0) return;
+    Chart.getChart(canvas)?.destroy();
+    new Chart(canvas, {
+      type: 'bar',
+      data: {
+        labels: this.statBySport.map((s: any) => s._id),
+        datasets: [{
+          label: 'Broj termina',
+          data: this.statBySport.map((s: any) => s.count),
+          backgroundColor: '#3b82f6'
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+  }
+
+  renderLineChart() {
+    const canvas = document.getElementById('lineChart') as HTMLCanvasElement;
+    if (!canvas || this.statMonthly.length === 0) return;
+    Chart.getChart(canvas)?.destroy();
+    new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels: this.statMonthly.map((s: any) => s._id),
+        datasets: [{
+          label: 'Aktivnost po mesecima',
+          data: this.statMonthly.map((s: any) => s.count),
+          borderColor: '#22c55e',
+          backgroundColor: 'rgba(34,197,94,0.2)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
     });
   }
 }
